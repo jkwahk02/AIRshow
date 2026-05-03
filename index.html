@@ -1184,8 +1184,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);font
           </div>
         </div>
         <div style="display:flex;gap:8px;margin-top:8px;">
-          <input id="em-video-url" placeholder="Paste video URL…" style="flex:1;padding:10px 13px;border:1px solid var(--b);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:.95rem;">
-          <button class="btn-pick" onclick="applyVideoUrl()">Apply</button>
+          <input id="em-video-url" placeholder="Paste video URL…" oninput="onVideoUrlInput()" style="flex:1;padding:10px 13px;border:1px solid var(--b);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:.95rem;">
+          <button class="btn-pick" id="video-save-btn" onclick="applyVideoUrl()">Save</button>
         </div>
       </div>
   
@@ -1617,25 +1617,39 @@ function applyVideoUrl() {
   const tint = document.getElementById('em-tint');
   const play = el.querySelector('.dvideo-play');
   const caption = el.querySelector('.dvideo-caption');
+  const btn = document.getElementById('video-save-btn');
 
   if (url) {
-    el.classList.add('has-video');
-    el.classList.remove('no-video');
+    el.classList.add('has-video'); el.classList.remove('no-video');
     play.textContent = '▶';
     caption.textContent = 'Click to play';
     tint.style.background = document.querySelector('#em-swatches .sw.sel')?.style.background || '#e8f4f8';
   } else {
-    el.classList.add('no-video');
-    el.classList.remove('has-video');
+    el.classList.add('no-video'); el.classList.remove('has-video');
     play.textContent = 'AIR';
     caption.textContent = 'Video can be added later';
     tint.style.background = '';
   }
-
-  // ← 이 줄 추가: dvideo-wrap hover 없이도 즉시 보이게
   play.style.opacity = '1';
   play.style.transform = 'scale(1)';
   caption.style.opacity = '1';
+
+  // Saved 상태로 변경
+  if (btn) {
+    btn.textContent = 'Saved';
+    btn.disabled = true;
+    btn.style.opacity = '.4';
+    btn.style.cursor = 'default';
+  }
+}
+
+function onVideoUrlInput() {
+  const btn = document.getElementById('video-save-btn');
+  if (!btn) return;
+  btn.textContent = 'Save';
+  btn.disabled = false;
+  btn.style.opacity = '1';
+  btn.style.cursor = 'pointer';
 }
   
 //function closeAddForm() { document.getElementById('add-form-wrap').classList.remove('open'); }
