@@ -1285,7 +1285,11 @@ function openEditModal(mode, idx, proj) {
   detailIdx = idx;
 
   document.getElementById('em-mode-label').textContent = mode === 'create' ? 'New project' : 'Edit project';
-  document.getElementById('em-submit-btn').textContent = mode === 'create' ? 'Add project' : 'Save changes';
+  const label = mode === 'create' ? 'Add project' : 'Save changes';
+  ['em-submit-btn', 'em-submit-btn-bottom'].forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) { btn.textContent = label; btn.disabled = false; btn.className = 'btn-fs'; }
+  });
 
   // 값 초기화 or 채우기
   document.getElementById('em-title').value = proj?.title || '';
@@ -1413,12 +1417,15 @@ async function submitEditModal() {
       const semId = selSem || semesters[0]?.id;
       if (!semId) { showToast('Please select a semester.'); return; }
       await adminSaveProject({ semester_id: semId, ...data });
-      showToast('Project added!');
     } else {
       await adminUpdateProject(currentProjectId, data);
-      showToast('Changes saved.');
     }
-    closeEditModal();
+    const savedLabel = editorMode === 'create' ? '✓ Added' : '✓ Saved';
+    ['em-submit-btn', 'em-submit-btn-bottom'].forEach(id => {
+      const btn = document.getElementById(id);
+      if (btn) { btn.textContent = savedLabel; btn.disabled = true; btn.className = 'btn-save saved'; }
+    });
+    showToast(editorMode === 'create' ? 'Project added!' : 'Changes saved.');
     await loadAll();
   } catch (err) { showToast('Error: ' + err.message); }
 }
