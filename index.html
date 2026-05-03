@@ -263,12 +263,12 @@ async function toggleVote(projectId) {
 }
 
 async function postCommentDB(projectId, authorName, content) {
-  const [row] = await sbInsert(TBL_COMMENTS, {
+  const result = await sbInsert(TBL_COMMENTS, {
     project_id: projectId,
     author_name: authorName.trim() || 'Anonymous',
     content: content.trim(),
   });
-  return row;
+  return Array.isArray(result) ? result[0] : result;
 }
 
 async function loadComments(projectId) {
@@ -2245,11 +2245,24 @@ async function postCmt() {
   const text = textEl.value.trim();
   if (!text) return;
   try {
-    const newCmt = await postCommentDB(detailProjId, nameEl.value, text);
-    detailComments.unshift(newCmt || { author_name: nameEl.value || 'Anonymous', content: text, created_at: new Date().toISOString() });
+    await postCommentDB(detailProjId, nameEl.value, text);
     textEl.value = '';
     rollNickname();
-    renderDCmts();
+    // vm-cmts에 새 댓글 추가
+    const cmts = await loadComments(detailProjId);
+    const cmtWrap = document.getElementById('vm-cmts');
+    if (!cmts.length) {
+      cmtWrap.innerHTML = '<p style="font-size:.9rem;color:var(--m);font-style:italic;">No comments yet. Be the first!</p>';
+    } else {
+      cmtWrap.innerHTML = cmts.map(c => `
+        <div class="cmt-item">
+          <div class="cmt-avatar" style="background:${avatarColor(c.author_name||'A')}">${avatarInitials(c.author_name||'A')}</div>
+          <div class="cmt-body">
+            <div class="cmt-auth">${c.author_name||'Anonymous'}<span class="cmt-time">${c.created_at ? new Date(c.created_at).toLocaleString() : ''}</span></div>
+            <div class="cmt-txt">${c.content}</div>
+          </div>
+        </div>`).join('');
+    }
   } catch (err) { showToast('Error posting comment: ' + err.message); }
 }
 
