@@ -118,6 +118,7 @@ let appData = {
 async function loadAll() {
   try {
     appData.semesters = await sbGet(TBL_SEMESTERS, 'order=created_at.desc');
+    semesters = appData.semesters;
 
     const activeSem = appData.semesters.find(s => s.status === 'active');
     if (activeSem) {
@@ -1081,18 +1082,30 @@ async function createSem() {
   } catch (err) { showToast('Error: ' + err.message); }
 }
 
-function openAddForm() { document.getElementById('add-form-wrap').classList.add('open'); renderSemPills(); initSwatches(); }
+function openAddForm() {
+  const activeSem = appData.semesters.find(s => s.status === 'active');
+
+  if (activeSem) {
+    selSem = activeSem.id;
+  } else if (!selSem && semesters.length) {
+    selSem = semesters[0].id;
+  }
+
+  document.getElementById('add-form-wrap').classList.add('open');
+  renderSemPills();
+  initSwatches();
+}
 function closeAddForm() { document.getElementById('add-form-wrap').classList.remove('open'); }
 let pickerMode = null;
 
 function formatFacultyName(f) {
-  const name = f.name || f.full_name || f.faculty_name || f.email || '';
+  const name = f.name_en || '';
   const honorific = f.honorific || f.honorifix || 'Prof.';
   return `${honorific} ${name}`.trim();
 }
 
 function formatStudentName(s) {
-  return s.name || s.full_name || s.student_name || s.email || s.id || '';
+  return s.name_en || s.email || s.id || '';
 }
 
 async function openFacultyPicker() {
@@ -1104,7 +1117,7 @@ async function openFacultyPicker() {
   try {
     facultyList = await sbGet(
       TBL_FACULTY,
-      'select=*&order=name.asc'
+      'select=*&order=name_en.asc'
     );
 
     renderFacultyPicker();
@@ -1116,7 +1129,10 @@ async function openFacultyPicker() {
 
 function renderFacultyPicker() {
   const body = document.getElementById('picker-body');
-
+  const name = f.name_en || '';
+  const email = f.email || '';
+  const program = f.school || '';
+  
   if (!facultyList.length) {
     body.innerHTML = '<p style="color:var(--m);font-size:.9rem;">No faculty found.</p>';
     return;
@@ -1149,7 +1165,7 @@ async function openStudentPicker() {
   try {
     studentList = await sbGet(
       TBL_STUDENTS,
-      'select=id,name,email&order=name.asc'
+      'select=id,name_en,email&order=name_en.asc'
     );
 
     renderStudentPicker();
