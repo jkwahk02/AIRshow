@@ -848,6 +848,18 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);font
     font-size:.78rem;
   }
 }
+
+.vm-val {
+  padding: 10px 13px;
+  border: 1px solid var(--b);
+  border-radius: 9px;
+  font-size: .95rem;
+  color: var(--txt);
+  background: var(--card);
+  min-height: 40px;
+  line-height: 1.5;
+}
+  
 </style>
 </head>
 <body>
@@ -1046,11 +1058,17 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);font
   <!-- VIEW PAGE (일반 유저) -->
   <div class="page" id="p-view">
     <div class="dwrap">
-      <button class="backbtn" onclick="go('main')">← Back to gallery</button>
   
-      <h1 class="dtitle-input" id="vm-title"
-        style="margin-bottom:1.2rem;font-family:'DM Serif Display',serif;font-weight:400;border:none;outline:none;background:transparent;width:100%;"></h1>
+      <!-- 상단 네비 바 -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.8rem;">
+        <button class="backbtn" onclick="go('main')">← Back to gallery</button>
+        <span id="vm-semester" style="font-size:11px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--m);background:var(--card);border:1px solid var(--b);border-radius:20px;padding:4px 12px;"></span>
+      </div>
   
+      <!-- Title -->
+      <h1 id="vm-title" style="font-family:'DM Serif Display',serif;font-weight:400;font-size:clamp(1.5rem,3vw,2rem);margin:0 0 1.4rem;line-height:1.3;color:var(--txt);"></h1>
+  
+      <!-- Video -->
       <div class="dvideo-wrap">
         <div class="dvideo no-video" id="vm-video" onclick="playVideo(window.currentViewUrl)">
           <div class="dvideo-tint" id="vm-tint"></div>
@@ -1058,19 +1076,40 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);font
           <div class="dvideo-caption">Click to play</div>
         </div>
       </div>
+      <div id="vm-video-url-display" style="padding:10px 13px;border:1px solid var(--b);border-radius:9px;font-size:.85rem;color:var(--m);background:var(--card);margin-bottom:1.4rem;word-break:break-all;display:none;"></div>
   
-      <div class="dmeta" id="vm-meta"></div>
+      <!-- Team / Members / Supervisor / Description / Tags -->
+      <div class="fg" style="margin-bottom:1.2rem;">
+        <div class="field">
+          <label>Team name</label>
+          <div id="vm-team" class="vm-val"></div>
+        </div>
+        <div class="field full">
+          <label>Team members</label>
+          <div id="vm-members" class="vm-val"></div>
+        </div>
+        <div class="field full">
+          <label>Supervisor</label>
+          <div id="vm-sup" class="vm-val"></div>
+        </div>
+        <div class="field full">
+          <label>Description</label>
+          <div id="vm-desc" class="vm-val" style="min-height:90px;line-height:1.8;"></div>
+        </div>
+        <div class="field full">
+          <label>Tags</label>
+          <div id="vm-tags" style="display:flex;flex-wrap:wrap;gap:7px;padding:10px 13px;border:1px solid var(--b);border-radius:9px;background:var(--card);min-height:40px;"></div>
+        </div>
+      </div>
   
-      <div class="tags-row" id="vm-tags" style="margin-bottom:1.4rem;"></div>
-  
-      <div id="vm-desc" style="font-size:1rem;line-height:1.85;color:rgba(26,26,46,.72);margin-bottom:2rem;"></div>
-  
+      <!-- Votes -->
       <div class="votes-section">
         <button class="bh-btn" id="vm-heart" onclick="toggleVMHeart()">🤍</button>
         <div class="bh-cnt" id="vm-cnt">0</div>
         <div class="bh-lbl">votes</div>
       </div>
   
+      <!-- Comments -->
       <div class="cmts-section">
         <div class="cmts-title">Comments</div>
         <div class="cmt-compose">
@@ -1085,6 +1124,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);font
           </div>
         </div>
         <div class="cmt-list-wrap" id="vm-cmts"></div>
+      </div>
+  
+      <!-- 하단 -->
+      <div style="padding-top:1.5rem;border-top:1px solid var(--b);margin-top:2rem;">
+        <button class="backbtn" onclick="go('main')">← Back to gallery</button>
       </div>
   
     </div>
@@ -2065,6 +2109,11 @@ async function openViewPage(idx, proj) {
   detailProjId = proj.id;
   window.currentViewUrl = proj.video_url || null;
 
+  // semester pill
+  document.getElementById('vm-semester').textContent =
+    appData.semesters.find(s => s.id === proj.semester_id)?.name || '';
+
+  // title
   document.getElementById('vm-title').textContent = proj.title;
 
   // video
@@ -2077,15 +2126,23 @@ async function openViewPage(idx, proj) {
     vid.classList.add('has-video'); vid.classList.remove('no-video');
     play.textContent = '▶';
     caption.textContent = 'Click to play';
+    const urlDisplay = document.getElementById('vm-video-url-display');
+    urlDisplay.textContent = proj.video_url;
+    urlDisplay.style.display = 'block';
   } else {
     vid.classList.add('no-video'); vid.classList.remove('has-video');
     play.textContent = 'AIR';
     caption.textContent = 'No video yet';
+    document.getElementById('vm-video-url-display').style.display = 'none';
   }
   play.style.opacity = '1'; play.style.transform = 'scale(1)'; caption.style.opacity = '1';
 
-  // meta — members 이름으로 표시
-  let memberNames = '';
+  // team / members / supervisor
+  document.getElementById('vm-team').textContent = proj.team_name || '—';
+  document.getElementById('vm-sup').textContent =
+    proj.supervisor_names?.join(', ') || proj.supervisor_email || '—';
+
+  let memberNames = '—';
   if (proj.member_ids?.length) {
     try {
       const members = await Promise.all(
@@ -2094,29 +2151,18 @@ async function openViewPage(idx, proj) {
             .then(rows => rows[0] || null).catch(() => null)
         )
       );
-      memberNames = members.filter(Boolean).map(formatStudentName).join(', ');
+      memberNames = members.filter(Boolean).map(formatStudentName).join(', ') || '—';
     } catch (e) { memberNames = proj.member_ids.join(', '); }
   }
-
-  const meta = document.getElementById('vm-meta'); meta.innerHTML = '';
-  [
-    { l: 'Team', v: proj.team_name || '' },
-    { l: 'Members', v: memberNames },
-    { l: 'Supervisor', v: proj.supervisor_names?.join(', ') || proj.supervisor_email || '' },
-    { l: 'Semester', v: appData.semesters.find(s => s.id === proj.semester_id)?.name || proj.semester_id },
-  ].forEach(({ l, v }) => {
-    if (!v) return;
-    const mi = document.createElement('div'); mi.className = 'mitem';
-    mi.innerHTML = `<div class="mlbl">${l}</div><div class="mval">${v}</div>`;
-    meta.appendChild(mi);
-  });
-
-  // tags
-  document.getElementById('vm-tags').innerHTML =
-    (proj.tags || []).map(t => `<span class="dtag">${t}</span>`).join('');
+  document.getElementById('vm-members').textContent = memberNames;
 
   // description
   document.getElementById('vm-desc').textContent = proj.description || '';
+
+  // tags
+  document.getElementById('vm-tags').innerHTML =
+    (proj.tags || []).map(t => `<span class="dtag">${t}</span>`).join('')
+    || '<span style="color:var(--m);font-size:.85rem;">No tags</span>';
 
   // votes
   document.getElementById('vm-heart').textContent = appData.myVotes.includes(proj.id) ? '❤️' : '🤍';
