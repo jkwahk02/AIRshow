@@ -30,9 +30,15 @@ function getYouTubeId(url) {
   return m ? m[1] : null;
 }
 
+function getGoogleDriveId(url) {
+  const m = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+  return m ? m[1] : null;
+}
+
 function playVideo(url) {
   if (!url) return;
   const ytId = getYouTubeId(url);
+  const gdId = getGoogleDriveId(url);
   const overlay = document.createElement('div');
   overlay.style.cssText = `
     position:fixed;inset:0;background:rgba(0,0,0,.88);
@@ -44,6 +50,16 @@ function playVideo(url) {
     overlay.innerHTML = `
       <div style="position:relative;width:min(860px,96vw);aspect-ratio:16/9;">
         <iframe src="https://www.youtube.com/embed/${ytId}?autoplay=1"
+          style="width:100%;height:100%;border:none;border-radius:12px;"
+          allow="autoplay; fullscreen"></iframe>
+        <button onclick="this.closest('div').parentElement.remove()"
+          style="position:absolute;top:-36px;right:0;background:none;border:none;
+          color:#fff;font-size:1.6rem;cursor:pointer;line-height:1;">✕</button>
+      </div>`;
+  } else if (gdId) {
+    overlay.innerHTML = `
+      <div style="position:relative;width:min(860px,96vw);aspect-ratio:16/9;">
+        <iframe src="https://drive.google.com/file/d/${gdId}/preview"
           style="width:100%;height:100%;border:none;border-radius:12px;"
           allow="autoplay; fullscreen"></iframe>
         <button onclick="this.closest('div').parentElement.remove()"
