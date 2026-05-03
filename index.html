@@ -1048,10 +1048,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);font
     <div class="dwrap">
       <button class="backbtn" onclick="go('main')">← Back to gallery</button>
   
-      <h1 class="dtitle-input" id="vm-title" style="margin-bottom:1.2rem;font-family:'DM Serif Display',serif;font-weight:400;"></h1>
+      <h1 class="dtitle-input" id="vm-title"
+        style="margin-bottom:1.2rem;font-family:'DM Serif Display',serif;font-weight:400;border:none;outline:none;background:transparent;width:100%;"></h1>
   
       <div class="dvideo-wrap">
-        <div class="dvideo no-video" id="vm-video" onclick="playVideo(currentViewUrl)">
+        <div class="dvideo no-video" id="vm-video" onclick="playVideo(window.currentViewUrl)">
           <div class="dvideo-tint" id="vm-tint"></div>
           <div class="dvideo-play">▶</div>
           <div class="dvideo-caption">Click to play</div>
@@ -2062,7 +2063,7 @@ function showDetail(idx, proj) {
 async function openViewPage(idx, proj) {
   detailIdx = idx;
   detailProjId = proj.id;
-  currentViewUrl = proj.video_url || null;
+  window.currentViewUrl = proj.video_url || null;
 
   document.getElementById('vm-title').textContent = proj.title;
 
