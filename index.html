@@ -1368,15 +1368,23 @@ function scrollToSec(id) {
     if (el) { const y = el.getBoundingClientRect().top + window.scrollY - 68; window.scrollTo({ top: y, behavior: 'smooth' }); }
   }, 50);
 }
+  
 function toggleAbout() {
   aboutOpen = !aboutOpen;
   document.getElementById('about-panel').classList.toggle('open', aboutOpen);
   document.getElementById('about-trigger').classList.toggle('open', aboutOpen);
 }
+  
 function go(p) {
+  document.querySelectorAll('.dvideo-wrap').forEach(wrap => {
+    if (wrap._originalContent) {
+      wrap.innerHTML = wrap._originalContent;
+      wrap._originalContent = null;
+    }
+  });
   document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
   document.getElementById({ main: 'p-main', edit: 'p-edit', view: 'p-view', pw: 'p-pw' }[p]).classList.add('active');
-  if (p !== 'detail') window.scrollTo(0, 0);
+  window.scrollTo(0, 0);
 }
 
 // ── SEMESTER PILLS (add form) ──
