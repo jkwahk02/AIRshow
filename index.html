@@ -287,6 +287,15 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);font
 .sec-hdr-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
 .stitle{font-family:'DM Serif Display',serif;font-size:clamp(1.4rem,2.5vw,1.9rem);font-weight:400;letter-spacing:-.02em;}
 .live-pill{display:inline-flex;align-items:center;gap:6px;background:rgba(230,52,98,.08);border:1px solid rgba(230,52,98,.25);border-radius:24px;padding:6px 16px;font-size:.9rem;color:var(--a);font-weight:500;}
+.live-pill.inactive {
+  background: rgba(26,26,46,.06);
+  border: 1px solid var(--b2);
+  color: var(--m);
+}
+.live-pill.inactive .ldot {
+  background: var(--m);
+  animation: none;
+}
 .ldot{width:8px;height:8px;border-radius:50%;background:var(--a);animation:blink 1.5s infinite;flex-shrink:0;}
 .btn-pill{font-size:.875rem;padding:6px 16px;border-radius:24px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:background .15s;white-space:nowrap;border:1px solid var(--b2);background:var(--card);color:var(--txt);}
 .btn-pill:hover{background:var(--ab);}
@@ -966,8 +975,15 @@ function renderGallery() {
   const g = document.getElementById('ggrid'); g.innerHTML = '';
   document.getElementById('g-adm-ctrl').style.display = isAdm ? 'flex' : 'none';
   const activeSem = appData.semesters.find(s => s.status === 'active');
-  const pillTxt = activeSem ? `${activeSem.name} open` : 'No active semester';
-  document.getElementById('pill-txt').textContent = pillTxt;
+  const pill = document.querySelector('.live-pill');
+  
+  if (activeSem) {
+    document.getElementById('pill-txt').textContent = `${activeSem.name} open`;
+    pill.classList.remove('inactive');
+  } else {
+    document.getElementById('pill-txt').textContent = 'No active semester';
+    pill.classList.add('inactive');
+  }
 
   const sorted = [...appData.projects].sort((a, b) =>
     (appData.votes[b.id] || 0) - (appData.votes[a.id] || 0));
