@@ -1129,9 +1129,6 @@ async function openFacultyPicker() {
 
 function renderFacultyPicker() {
   const body = document.getElementById('picker-body');
-  const name = f.name_en || '';
-  const email = f.email || '';
-  const program = f.school || '';
   
   if (!facultyList.length) {
     body.innerHTML = '<p style="color:var(--m);font-size:.9rem;">No faculty found.</p>';
@@ -1139,9 +1136,9 @@ function renderFacultyPicker() {
   }
 
   body.innerHTML = facultyList.map((f, i) => {
-    const name = f.name || f.full_name || f.faculty_name || '';
+    const name = f.name_en || '';
     const email = f.email || '';
-    const program = f.program || f.affiliated_program || f.home_program || '';
+    const program = f.school || '';
     const checked = selectedFaculty.some(x => (x.email || x.name) === (email || name)) ? 'checked' : '';
 
     return `
