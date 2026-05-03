@@ -262,15 +262,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);font
   margin-left:6px;
   letter-spacing:-.005em;
 }
-
-.add-form-wrap .votes-section {
-  opacity: .4;
-  pointer-events: none;
-}
-
-.add-form-wrap .cmts-section {
-  margin-top: 1.5rem;
-}
   
 .nav-links{display:flex;gap:1.5rem;align-items:center;}
 .nl{font-size:.875rem;color:var(--m);cursor:pointer;transition:color .15s;background:none;border:none;font-family:'DM Sans',sans-serif;}
@@ -865,7 +856,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);font
       </div>
 
       <!-- Inline Add Form -->
-      <div class="project-editor-wrap" id="project-editor">
+      <div class="add-form-wrap" id="add-form-wrap">
         <div class="add-form-hdr">
           <span>New project</span>
           <button class="afc" onclick="closeAddForm()">✕</button>
@@ -889,19 +880,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);font
         </div>
         <div class="fg">
           <div class="field full"><label>Project title</label><input id="f-title" placeholder="e.g. MindBridge: AI Mental Health Companion"></div>
-          <div class="field full">
-            <label>Video</label>
-            <div class="dvideo-wrap">
-              <div class="dvideo no-video" id="f-video-thumb">
-                <div class="dvideo-tint" id="f-video-tint"></div>
-                <div class="dvideo-play">AIR</div>
-                <div class="dvideo-caption">Video can be added later</div>
-              </div>
-              <button class="video-edit-btn" onclick="alert('Replace video: open file picker or paste URL')" type="button">
-                🎬 Replace video
-              </button>
-            </div>
-          </div>
           <div class="field"><label>Team name</label><input id="f-team" placeholder="e.g. Team Nova"></div>
           <div class="field full">
             <label>Team members</label>
@@ -920,19 +898,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);font
           <div class="field full"><label>Description</label><textarea id="f-desc" placeholder="Describe the research question and approach…"></textarea></div>
           <div class="field"><label>Tags</label><input id="f-tags" placeholder="AI, Health, NLP"></div>
           <div class="field"><label>Card color</label><div class="swatches" id="swatches"></div></div>
-        </div>
-        <div class="votes-section">
-          <button class="bh-btn" type="button">🤍</button>
-          <div class="bh-cnt">0</div>
-          <div class="bh-lbl">votes</div>
-          <div class="votes-lock">🔒 Not editable</div>
-        </div>
-        
-        <div class="cmts-section">
-          <div class="cmts-title">Comments</div>
-          <p style="font-size:.9rem;color:var(--m);padding:1rem 0;font-style:italic;">
-            Comments will be available after the project is created.
-          </p>
         </div>
         <div class="form-foot">
           <button class="btn-fc2" onclick="closeAddForm()">Cancel</button>
@@ -1198,62 +1163,19 @@ async function createSem() {
 }
 
 function openAddForm() {
-  editorMode = 'create';
-  currentProjectId = null;
+  const activeSem = appData.semesters.find(s => s.status === 'active');
 
-  // 값 초기화
-  document.getElementById('f-title').value = '';
-  document.getElementById('f-team').value = '';
-  document.getElementById('f-desc').value = '';
-  document.getElementById('f-tags').value = '';
-
-  selectedStudents = [];
-  selectedFaculty = [];
-
-  // video 초기화
-  renderEditorVideo(null);
-
-  document.getElementById('project-editor').classList.add('open');
-}
-
-function openEditForm(proj) {
-  editorMode = 'edit';
-  currentProjectId = proj.id;
-
-  // 값 채우기
-  document.getElementById('f-title').value = proj.title || '';
-  document.getElementById('f-team').value = proj.team_name || '';
-  document.getElementById('f-desc').value = proj.description || '';
-  document.getElementById('f-tags').value = (proj.tags || []).join(', ');
-
-  // video
-  renderEditorVideo(proj);
-
-  document.getElementById('project-editor').classList.add('open');
-}
-  
-function renderEditorVideo(proj) {
-  const thumb = document.getElementById('f-video-thumb');
-  const tint  = document.getElementById('f-video-tint');
-  const play  = thumb.querySelector('.dvideo-play');
-  const caption = thumb.querySelector('.dvideo-caption');
-
-  if (proj && proj.video_url) {
-    if (tint) tint.style.background = proj.card_color || '#e8f4f8';
-    thumb.classList.add('has-video');
-    thumb.classList.remove('no-video');
-    play.textContent = '▶';
-    caption.textContent = 'Click to play';
-  } else {
-    if (tint) tint.style.background = '';
-    thumb.classList.add('no-video');
-    thumb.classList.remove('has-video');
-    play.textContent = 'AIR';
-    caption.textContent = 'Video can be added later';
+  if (activeSem) {
+    selSem = activeSem.id;
+  } else if (!selSem && semesters.length) {
+    selSem = semesters[0].id;
   }
-}
 
-function closeAddForm() { document.getElementById('project-editor').classList.remove('open'); }
+  document.getElementById('add-form-wrap').classList.add('open');
+  renderSemPills();
+  initSwatches();
+}
+function closeAddForm() { document.getElementById('add-form-wrap').classList.remove('open'); }
 let pickerMode = null;
 
 function formatFacultyName(f) {
@@ -1319,7 +1241,7 @@ async function openStudentPicker() {
   try {
     studentList = await sbGet(
       TBL_STUDENTS,
-      'select=id,name_en,email,cohort&order=name_en.asc'
+      'select=id,name_en,email&order=name_en.asc'
     );
 
     renderStudentPicker();
@@ -1345,11 +1267,7 @@ function renderStudentPicker() {
         <input type="checkbox" data-picker-index="${i}" ${checked}>
         <div>
           <div class="modal-main">${formatStudentName(s)}</div>
-          <div class="modal-sub">
-            ${s.id || ''}
-            ${s.email ? ' · ' + s.email : ''}
-            ${s.cohort ? ' · Cohort ' + s.cohort : ''}
-          </div>
+          <div class="modal-sub">${s.id || ''}${s.email ? ' · ' + s.email : ''}</div>
         </div>
       </label>
     `;
@@ -1381,31 +1299,34 @@ function savePicker() {
 }
 
 async function submitProject() {
-  const payload = {
-    title: document.getElementById('f-title').value.trim(),
-    team_name: document.getElementById('f-team').value.trim(),
-    description: document.getElementById('f-desc').value.trim(),
-    tags: parseTags(document.getElementById('f-tags').value),
-
-    member_ids: selectedStudents.map(s => String(s.id)),
-    supervisor_emails: selectedFaculty.map(f => f.email),
-    supervisor_names: selectedFaculty.map(formatFacultyName),
-
-    card_color: selColor,
-  };
-
-  if (editorMode === 'edit') {
-    await adminUpdateProject(currentProjectId, payload);
-  } else {
+  const title = document.getElementById('f-title').value.trim();
+  if (!title) { showToast('Project title is required.'); return; }
+  const semId = selSem || semesters[0]?.id;
+  if (!semId) { showToast('Please select a semester.'); return; }
+  const selColor = document.querySelector('.sw.sel')?.style.background || SW_COLORS[0];
+  const tags = document.getElementById('f-tags').value.split(',').map(t => t.trim()).filter(Boolean);
+  try {
     await adminSaveProject({
-      ...payload,
-      semester_id: getActiveSemesterId(),
+      semester_id: semId,
+      title,
+      team_name: document.getElementById('f-team').value.trim(),
+    
+      supervisor_emails: selectedFaculty.map(f => f.email).filter(Boolean),
+      supervisor_names: selectedFaculty.map(formatFacultyName).filter(Boolean),
+    
+      member_ids: selectedStudents.length
+        ? selectedStudents.map(s => String(s.id)).filter(Boolean)
+        : document.getElementById('f-members').value.split(',').map(m => m.trim()).filter(Boolean),
+    
+      description: document.getElementById('f-desc').value.trim(),
+      tags,
+      card_color: selColor,
       video_url: null,
     });
-  }
-
-  closeEditor();
-  await loadAll();
+    closeAddForm();
+    showToast('Project added!');
+    await loadAll();
+  } catch (err) { showToast('Error: ' + err.message); }
 }
 
 // ── GALLERY ──
