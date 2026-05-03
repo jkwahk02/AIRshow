@@ -1281,7 +1281,7 @@ async function createSem() {
 }
 
 // mode: 'create' | 'edit'
-function openEditModal(mode, idx, proj) {
+async function openEditModal(mode, idx, proj) {
   editorMode = mode;
   currentProjectId = proj?.id || null;
   detailIdx = idx;
@@ -1298,10 +1298,29 @@ function openEditModal(mode, idx, proj) {
   document.getElementById('em-team').value = proj?.team_name || '';
   document.getElementById('em-desc').value = proj?.description || '';
 
+  // supervisor
   selectedFaculty = [];
-  selectedStudents = [];
   document.getElementById('em-sup').value = proj?.supervisor_names?.join(', ') || proj?.supervisor_email || '';
-  document.getElementById('em-members').value = (proj?.member_ids || []).join(', ');
+
+  // team members — id 대신 이름으로 표시
+  selectedStudents = [];
+  if (proj?.member_ids?.length) {
+    try {
+      const members = await Promise.all(
+        proj.member_ids.map(id =>
+          sbGet(TBL_STUDENTS, `id=eq.${encodeURIComponent(id)}&select=id,name_en,email`)
+            .then(rows => rows[0] || null)
+            .catch(() => null)
+        )
+      );
+      selectedStudents = members.filter(Boolean);
+      document.getElementById('em-members').value = selectedStudents.map(formatStudentName).join(', ');
+    } catch (e) {
+      document.getElementById('em-members').value = proj.member_ids.join(', ');
+    }
+  } else {
+    document.getElementById('em-members').value = '';
+  }
 
   // video
   renderEmVideo(proj);
@@ -1325,7 +1344,6 @@ function openEditModal(mode, idx, proj) {
   }
 
   go('edit');
-
 }
   
 function closeEditModal() {
