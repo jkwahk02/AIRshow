@@ -1117,7 +1117,7 @@ async function openFacultyPicker() {
   try {
     facultyList = await sbGet(
       TBL_FACULTY,
-      'select=*&order=name_en.asc'
+      'select=id,name_en,email,school&order=name_en.asc'
     );
 
     renderFacultyPicker();
@@ -1129,7 +1129,7 @@ async function openFacultyPicker() {
 
 function renderFacultyPicker() {
   const body = document.getElementById('picker-body');
-  
+
   if (!facultyList.length) {
     body.innerHTML = '<p style="color:var(--m);font-size:.9rem;">No faculty found.</p>';
     return;
@@ -1138,15 +1138,14 @@ function renderFacultyPicker() {
   body.innerHTML = facultyList.map((f, i) => {
     const name = f.name_en || '';
     const email = f.email || '';
-    const program = f.school || '';
-    const checked = selectedFaculty.some(x => (x.email || x.name) === (email || name)) ? 'checked' : '';
+    const school = f.school || '';
 
     return `
       <label class="modal-row">
-        <input type="checkbox" data-picker-index="${i}" ${checked}>
+        <input type="checkbox" data-picker-index="${i}">
         <div>
-          <div class="modal-main">${formatFacultyName(f)}</div>
-          <div class="modal-sub">${email}${program ? ' · ' + program : ''}</div>
+          <div class="modal-main">Prof. ${name}</div>
+          <div class="modal-sub">${email}${school ? ' · ' + school : ''}</div>
         </div>
       </label>
     `;
