@@ -1060,10 +1060,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);font
       <!-- Video -->
       <div class="field full" style="margin-bottom:1rem;">
         <label>Video</label>
-        <div class="dvideo no-video" id="em-video">
-          <div class="dvideo-tint" id="em-tint"></div>
-          <div class="dvideo-play">AIR</div>
-          <div class="dvideo-caption">Video can be added later</div>
+        <div class="dvideo-wrap">
+          <div class="dvideo no-video" id="em-video">
+            <div class="dvideo-tint" id="em-tint"></div>
+            <div class="dvideo-play">AIR</div>
+            <div class="dvideo-caption">Video can be added later</div>
+          </div>
         </div>
         <div style="display:flex;gap:8px;margin-top:8px;">
           <input id="em-video-url" placeholder="Paste video URL…" style="flex:1;padding:10px 13px;border:1px solid var(--b);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:.95rem;">
@@ -1427,15 +1429,28 @@ async function deleteEmComment(cmtId, btn) {
 function applyVideoUrl() {
   const url = document.getElementById('em-video-url').value.trim();
   const el = document.getElementById('em-video');
+  const tint = document.getElementById('em-tint');
   const play = el.querySelector('.dvideo-play');
   const caption = el.querySelector('.dvideo-caption');
+
   if (url) {
-    el.classList.add('has-video'); el.classList.remove('no-video');
-    play.textContent = '▶'; caption.textContent = 'Click to play';
+    el.classList.add('has-video');
+    el.classList.remove('no-video');
+    play.textContent = '▶';
+    caption.textContent = 'Click to play';
+    tint.style.background = document.querySelector('#em-swatches .sw.sel')?.style.background || '#e8f4f8';
   } else {
-    el.classList.add('no-video'); el.classList.remove('has-video');
-    play.textContent = 'AIR'; caption.textContent = 'Video can be added later';
+    el.classList.add('no-video');
+    el.classList.remove('has-video');
+    play.textContent = 'AIR';
+    caption.textContent = 'Video can be added later';
+    tint.style.background = '';
   }
+
+  // ← 이 줄 추가: dvideo-wrap hover 없이도 즉시 보이게
+  play.style.opacity = '1';
+  play.style.transform = 'scale(1)';
+  caption.style.opacity = '1';
 }
   
 //function closeAddForm() { document.getElementById('add-form-wrap').classList.remove('open'); }
@@ -1548,14 +1563,16 @@ function savePicker() {
 
   if (pickerMode === 'faculty') {
     selectedFaculty = checkedIndexes.map(i => facultyList[i]);
-    document.getElementById('f-sup').value =
-      selectedFaculty.map(formatFacultyName).join(', ');
+    const val = selectedFaculty.map(formatFacultyName).join(', ');
+    const target = document.getElementById('em-sup') || document.getElementById('f-sup');
+    if (target) target.value = val;
   }
 
   if (pickerMode === 'student') {
     selectedStudents = checkedIndexes.map(i => studentList[i]);
-    document.getElementById('f-members').value =
-      selectedStudents.map(formatStudentName).join(', ');
+    const val = selectedStudents.map(formatStudentName).join(', ');
+    const target = document.getElementById('em-members') || document.getElementById('f-members');
+    if (target) target.value = val;
   }
 
   closePicker();
