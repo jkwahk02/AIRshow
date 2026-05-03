@@ -1040,37 +1040,49 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);font
     <div class="footer">AIRshow · Taejae University AIR Program · Advanced Independent Research</div>
   </div><!-- /p-main -->
 
-  <!-- 기존 p-detail 전체 삭제 후, body 안에 아래 모달 두 개 추가 -->
-
-  <!-- ① 일반 유저용 읽기전용 상세 모달 -->
-  <div class="modal-backdrop" id="view-modal">
-    <div class="modal-card view-card">
-      <div class="modal-hdr">
-        <div class="modal-title" id="vm-title"></div>
-        <button class="modal-close" onclick="closeViewModal()">×</button>
-      </div>
-      <div class="modal-body">
-        <!-- video placeholder -->
+  <!-- VIEW PAGE (일반 유저) -->
+  <div class="page" id="p-view">
+    <div class="dwrap">
+      <button class="backbtn" onclick="go('main')">← Back to gallery</button>
+  
+      <h1 class="dtitle-input" id="vm-title" style="margin-bottom:1.2rem;font-family:'DM Serif Display',serif;font-weight:400;"></h1>
+  
+      <div class="dvideo-wrap">
         <div class="dvideo no-video" id="vm-video" onclick="playVideo(currentViewUrl)">
           <div class="dvideo-tint" id="vm-tint"></div>
           <div class="dvideo-play">▶</div>
           <div class="dvideo-caption">Click to play</div>
         </div>
-        <!-- meta -->
-        <div class="dmeta" id="vm-meta"></div>
-        <!-- tags -->
-        <div class="tags-row" id="vm-tags"></div>
-        <!-- description -->
-        <div class="vm-desc" id="vm-desc"></div>
-        <!-- votes -->
-        <div class="votes-section">
-          <button class="bh-btn" id="vm-heart" onclick="toggleVMHeart()">🤍</button>
-          <div class="bh-cnt" id="vm-cnt">0</div>
-          <div class="bh-lbl">votes</div>
-        </div>
-        <!-- comments -->
-        <div class="cmts-section" id="vm-cmts"></div>
       </div>
+  
+      <div class="dmeta" id="vm-meta"></div>
+  
+      <div class="tags-row" id="vm-tags" style="margin-bottom:1.4rem;"></div>
+  
+      <div id="vm-desc" style="font-size:1rem;line-height:1.85;color:rgba(26,26,46,.72);margin-bottom:2rem;"></div>
+  
+      <div class="votes-section">
+        <button class="bh-btn" id="vm-heart" onclick="toggleVMHeart()">🤍</button>
+        <div class="bh-cnt" id="vm-cnt">0</div>
+        <div class="bh-lbl">votes</div>
+      </div>
+  
+      <div class="cmts-section">
+        <div class="cmts-title">Comments</div>
+        <div class="cmt-compose">
+          <div class="nick-row">
+            <span class="nick-label">Name</span>
+            <input class="nick-input" id="nick-input" placeholder="Your name…">
+            <button class="btn-dice" onclick="rollNickname()" title="Generate a random name">🎲</button>
+          </div>
+          <textarea class="cmt-textarea" id="cmt-textarea" placeholder="Share your thoughts on this project…"></textarea>
+          <div class="cmt-submit-row">
+            <button class="btn-cmt-post" onclick="postCmt()">Post comment</button>
+          </div>
+        </div>
+        <div class="cmt-list-wrap" id="vm-cmts"></div>
+      </div>
+  
     </div>
   </div>
   
@@ -1254,6 +1266,9 @@ let facultyList = [];
 let studentList = [];
 let selectedFaculty = [];
 let selectedStudents = [];
+let currentViewUrl = null;    // ← 이 줄 추가
+let editorMode = 'create';    // ← 없으면 추가
+let currentProjectId = null;  // ← 없으면 추가
 
 // ── UTILS ──
 function showToast(msg) {
@@ -1276,7 +1291,7 @@ function toggleAbout() {
 }
 function go(p) {
   document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
-  document.getElementById({ main: 'p-main', edit: 'p-edit', pw: 'p-pw' }[p]).classList.add('active');
+  document.getElementById({ main: 'p-main', edit: 'p-edit', view: 'p-view', pw: 'p-pw' }[p]).classList.add('active');
   if (p !== 'detail') window.scrollTo(0, 0);
 }
 
@@ -2032,37 +2047,52 @@ function showDetail(idx, proj) {
   if (isAdm) {
     openEditModal('edit', idx, proj);
   } else {
-    openViewModal(idx, proj);
+    openViewPage(idx, proj);
   }
 }
 
-async function openViewModal(idx, proj) {
+async function openViewPage(idx, proj) {
   detailIdx = idx;
   detailProjId = proj.id;
+  currentViewUrl = proj.video_url || null;
 
   document.getElementById('vm-title').textContent = proj.title;
-
-  let currentViewUrl = proj.video_url || null;
 
   // video
   const vid = document.getElementById('vm-video');
   const tint = document.getElementById('vm-tint');
+  const play = vid.querySelector('.dvideo-play');
+  const caption = vid.querySelector('.dvideo-caption');
   tint.style.background = proj.card_color || '#e8f4f8';
   if (proj.video_url) {
     vid.classList.add('has-video'); vid.classList.remove('no-video');
-    vid.querySelector('.dvideo-play').textContent = '▶';
-    vid.querySelector('.dvideo-caption').textContent = 'Click to play';
+    play.textContent = '▶';
+    caption.textContent = 'Click to play';
   } else {
     vid.classList.add('no-video'); vid.classList.remove('has-video');
-    vid.querySelector('.dvideo-play').textContent = 'AIR';
-    vid.querySelector('.dvideo-caption').textContent = 'Video can be added later';
+    play.textContent = 'AIR';
+    caption.textContent = 'No video yet';
+  }
+  play.style.opacity = '1'; play.style.transform = 'scale(1)'; caption.style.opacity = '1';
+
+  // meta — members 이름으로 표시
+  let memberNames = '';
+  if (proj.member_ids?.length) {
+    try {
+      const members = await Promise.all(
+        proj.member_ids.map(id =>
+          sbGet(TBL_STUDENTS, `id=eq.${encodeURIComponent(id)}&select=id,name_en,email`)
+            .then(rows => rows[0] || null).catch(() => null)
+        )
+      );
+      memberNames = members.filter(Boolean).map(formatStudentName).join(', ');
+    } catch (e) { memberNames = proj.member_ids.join(', '); }
   }
 
-  // meta
   const meta = document.getElementById('vm-meta'); meta.innerHTML = '';
   [
     { l: 'Team', v: proj.team_name || '' },
-    { l: 'Members', v: (proj.member_ids || []).join(', ') },
+    { l: 'Members', v: memberNames },
     { l: 'Supervisor', v: proj.supervisor_names?.join(', ') || proj.supervisor_email || '' },
     { l: 'Semester', v: appData.semesters.find(s => s.id === proj.semester_id)?.name || proj.semester_id },
   ].forEach(({ l, v }) => {
@@ -2073,24 +2103,24 @@ async function openViewModal(idx, proj) {
   });
 
   // tags
-  const tagsRow = document.getElementById('vm-tags');
-  tagsRow.innerHTML = (proj.tags || []).map(t => `<span class="dtag">${t}</span>`).join('');
+  document.getElementById('vm-tags').innerHTML =
+    (proj.tags || []).map(t => `<span class="dtag">${t}</span>`).join('');
 
   // description
   document.getElementById('vm-desc').textContent = proj.description || '';
 
   // votes
-  const liked = appData.myVotes.includes(proj.id);
-  document.getElementById('vm-heart').textContent = liked ? '❤️' : '🤍';
+  document.getElementById('vm-heart').textContent = appData.myVotes.includes(proj.id) ? '❤️' : '🤍';
   document.getElementById('vm-cnt').textContent = appData.votes[proj.id] || 0;
 
   // comments
+  if (!document.getElementById('nick-input').value) rollNickname();
   const cmtWrap = document.getElementById('vm-cmts');
   cmtWrap.innerHTML = '<p style="color:var(--m);font-size:.9rem;">Loading comments…</p>';
   try {
     const cmts = await loadComments(proj.id);
     if (!cmts.length) {
-      cmtWrap.innerHTML = '<p style="font-size:.9rem;color:var(--m);font-style:italic;">No comments yet.</p>';
+      cmtWrap.innerHTML = '<p style="font-size:.9rem;color:var(--m);font-style:italic;">No comments yet. Be the first!</p>';
     } else {
       cmtWrap.innerHTML = cmts.map(c => `
         <div class="cmt-item">
@@ -2105,11 +2135,11 @@ async function openViewModal(idx, proj) {
     cmtWrap.innerHTML = '<p style="color:var(--a);font-size:.9rem;">Failed to load comments.</p>';
   }
 
-  document.getElementById('view-modal').classList.add('open');
+  go('view');
 }
 
-function closeViewModal() {
-  document.getElementById('view-modal').classList.remove('open');
+function closeViewPage() {
+  go('main');
 }
 
 function renderDetailTags(tags) {
