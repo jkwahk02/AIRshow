@@ -587,10 +587,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);font
   justify-content: flex-end;
   gap: 10px;
 }
-.add-form-wrap{background:var(--ab);border:1px solid var(--b2);border-radius:16px;padding:1.5rem 1.8rem;margin-bottom:1.5rem;display:none;}
-.add-form-wrap.open{display:block;}
-.add-form-hdr{font-weight:600;font-size:1.05rem;margin-bottom:1.2rem;display:flex;align-items:center;justify-content:space-between;}
-.afc{background:none;border:none;cursor:pointer;font-size:1.3rem;color:var(--m);}
+
 .sem-box{background:var(--card);border:1px solid var(--b);border-radius:12px;padding:14px 16px;margin-bottom:1.2rem;}
 .sem-box-lbl{font-size:.75rem;color:var(--m);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;font-weight:500;}
 .sem-pills{display:flex;flex-wrap:wrap;gap:7px;}
@@ -720,19 +717,27 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);font
 .arc-team-sm{font-size:.72rem;color:var(--m);}
 .arc-tags-sm{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px;}
 .arc-tag-sm{font-size:.65rem;padding:2px 7px;background:rgba(26,26,46,.06);border-radius:20px;color:rgba(26,26,46,.5);}
-.arc-list{display:flex;flex-direction:column;}
-.arc-list-row{display:grid;grid-template-columns:38px 1fr auto;align-items:center;gap:14px;padding:12px 16px;background:var(--card);border:1px solid var(--b);cursor:pointer;transition:background .15s;}
-.arc-list-row:first-child{border-radius:12px 12px 0 0;}
-.arc-list-row:last-child{border-radius:0 0 12px 12px;}
-.arc-list-row+.arc-list-row{border-top:none;}
-.arc-list-row:hover{background:rgba(26,26,46,.025);}
-.arc-icon{width:38px;height:38px;border-radius:8px;background:#1a1a2e;display:flex;align-items:center;justify-content:center;font-size:.85rem;color:rgba(255,255,255,.5);flex-shrink:0;position:relative;overflow:hidden;}
-.arc-icon-tint{position:absolute;inset:0;opacity:.18;}
-.arc-icon-play{font-size:.65rem;color:#fff;position:relative;z-index:1;}
-.arc-list-name{font-weight:600;font-size:.9rem;line-height:1.3;margin-bottom:2px;}
-.arc-list-sub{font-size:.78rem;color:var(--m);}
-.arc-list-tags{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end;}
-.arc-list-tag{font-size:.7rem;padding:2px 8px;background:rgba(26,26,46,.06);border-radius:20px;color:rgba(26,26,46,.5);}
+/* ── UNIFIED LIST VIEW ── */
+.gl-list{display:flex;flex-direction:column;}
+.gl-row{display:grid;grid-template-columns:88px 1fr auto;align-items:center;gap:18px;padding:16px 18px;background:var(--card);border:1px solid var(--b);cursor:pointer;transition:background .15s;}
+.gl-row:first-child{border-radius:12px 12px 0 0;}
+.gl-row:last-child{border-radius:0 0 12px 12px;}
+.gl-row+.gl-row{border-top:none;}
+.gl-row:hover{background:var(--ab);}
+.gl-thumb-sm{width:112px;height:63px;border-radius:7px;background:#1a1a2e;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;flex-shrink:0;}
+.gl-tint{position:absolute;inset:0;opacity:.17;}
+.gl-play{font-size:11px;color:rgba(255,255,255,.65);position:relative;z-index:1;}
+.gl-thumb-sm.has-video .gl-play{font-size:14px;color:#fff;}
+.gl-thumb-sm.no-video .gl-tint{opacity:.55;}
+.gl-thumb-sm.no-video .gl-play{font-family:'DM Serif Display',serif;font-size:.7rem;letter-spacing:.04em;opacity:1;}
+.gl-row-title{font-size:1rem;font-weight:500;color:var(--txt);line-height:1.3;margin-bottom:2px;}
+.gl-row-sub{font-size:.875rem;color:var(--m);margin-bottom:5px;}
+.gl-row-tags{display:flex;gap:4px;flex-wrap:wrap;}
+.gl-row-tag{font-size:.75rem;padding:3px 10px;background:rgba(26,26,46,.06);border-radius:20px;color:rgba(26,26,46,.5);}
+.gl-row-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;}
+.gl-row-votes{font-size:.875rem;color:var(--m);}
+.aw-badge{font-size:.72rem;font-weight:500;padding:2px 8px;border-radius:20px;background:rgba(26,26,46,.06);color:var(--m);margin-bottom:4px;display:inline-block;}
+@media(max-width:600px){.gl-row{grid-template-columns:64px 1fr;}.gl-row-right{display:none;}}
 
 /* ── DETAIL PAGE ── */
 .dwrap{max-width:820px;margin:0 auto;padding:clamp(1.5rem,4vw,3rem) var(--pad);}
@@ -1016,64 +1021,37 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);font
         </div>
       </div>
 
-      <!-- Inline Add Form -->
-      <div class="add-form-wrap" id="add-form-wrap">
-        <div class="add-form-hdr">
-          <span>New project</span>
-          <button class="afc" onclick="closeAddForm()">✕</button>
-        </div>
-        <div class="sem-box">
-          <div class="sem-box-lbl">Semester</div>
-          <div class="sem-pills" id="sem-pills"></div>
-          <div class="nsc" id="nsc">
-            <div class="nsc-lbl">Create a new semester</div>
-            <div class="nsc-row">
-              <select class="nsc-sel" id="nsc-term">
-                <option>Spring</option><option>Summer</option>
-                <option selected>Fall</option><option>Winter</option>
-              </select>
-              <input class="nsc-yr" id="nsc-yr" type="number" min="2020" max="2040" placeholder="2026">
-              <span class="nsc-preview" id="nsc-preview">—</span>
-              <button class="btn-nsc" id="btn-nsc" onclick="createSem()" disabled>Create</button>
-            </div>
-            <div class="nsc-dup" id="nsc-dup">A semester with this name already exists.</div>
+      <div class="arc-toolbar" style="margin-bottom:1rem;">
+        <span class="arc-count-lbl" id="g-count-lbl"></span>
+        <div style="margin-left:auto;">
+          <div class="view-toggle">
+            <button class="vt-btn active" id="g-vt-grid" onclick="setGalleryView('grid')">
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="0" y="0" width="5.5" height="5.5" rx="1.2" fill="currentColor"/><rect x="7.5" y="0" width="5.5" height="5.5" rx="1.2" fill="currentColor"/><rect x="0" y="7.5" width="5.5" height="5.5" rx="1.2" fill="currentColor"/><rect x="7.5" y="7.5" width="5.5" height="5.5" rx="1.2" fill="currentColor"/></svg>Grid
+            </button>
+            <button class="vt-btn" id="g-vt-list" onclick="setGalleryView('list')">
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="0" y="1" width="13" height="2" rx="1" fill="currentColor"/><rect x="0" y="5.5" width="13" height="2" rx="1" fill="currentColor"/><rect x="0" y="10" width="13" height="2" rx="1" fill="currentColor"/></svg>List
+            </button>
           </div>
-        </div>
-        <div class="fg">
-          <div class="field full"><label>Project title</label><input id="f-title" placeholder="e.g. MindBridge: AI Mental Health Companion"></div>
-          <div class="field"><label>Team name</label><input id="f-team" placeholder="e.g. Team Nova"></div>
-          <div class="field full">
-            <label>Team members</label>
-            <div class="pick-row">
-              <input id="f-members" placeholder="Kim Jiwon, Lee Soyeon" readonly>
-              <button class="btn-pick" onclick="openStudentPicker()" type="button">Select</button>
-            </div>
-          </div>
-          <div class="field full">
-            <label>Supervisor</label>
-            <div class="pick-row">
-              <input id="f-sup" placeholder="Prof. Name" readonly>
-              <button class="btn-pick" onclick="openFacultyPicker()" type="button">Select</button>
-            </div>
-          </div>
-          <div class="field full"><label>Description</label><textarea id="f-desc" placeholder="Describe the research question and approach…"></textarea></div>
-          <div class="field"><label>Tags</label><input id="f-tags" placeholder="AI, Health, NLP"></div>
-          <div class="field"><label>Card color</label><div class="swatches" id="swatches"></div></div>
-        </div>
-        <div class="form-foot">
-          <button class="btn-fc2" onclick="closeAddForm()">Cancel</button>
-          <button class="btn-fs" onclick="submitProject()">Add project</button>
         </div>
       </div>
-
-      <div class="ggrid" id="ggrid">
+      <div id="ggrid" class="ggrid">
         <div style="grid-column:1/-1;padding:2rem;text-align:center;color:var(--m);font-size:.95rem;">Loading projects…</div>
       </div>
     </div>
 
     <!-- LEADERBOARD -->
     <div class="sec" id="sec-leaderboard">
-      <div class="sec-hdr"><div class="stitle">Leaderboard</div></div>
+      <div class="sec-hdr" style="display:flex;align-items:center;justify-content:space-between;">
+        <div class="stitle">Leaderboard</div>
+        <div class="view-toggle">
+          <button class="vt-btn active" id="lb-vt-grid" onclick="setLBView('grid')">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="0" y="0" width="5.5" height="5.5" rx="1.2" fill="currentColor"/><rect x="7.5" y="0" width="5.5" height="5.5" rx="1.2" fill="currentColor"/><rect x="0" y="7.5" width="5.5" height="5.5" rx="1.2" fill="currentColor"/><rect x="7.5" y="7.5" width="5.5" height="5.5" rx="1.2" fill="currentColor"/></svg>Grid
+          </button>
+          <button class="vt-btn" id="lb-vt-list" onclick="setLBView('list')">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="0" y="1" width="13" height="2" rx="1" fill="currentColor"/><rect x="0" y="5.5" width="13" height="2" rx="1" fill="currentColor"/><rect x="0" y="10" width="13" height="2" rx="1" fill="currentColor"/></svg>List
+          </button>
+        </div>
+      </div>
       <div id="lb-body"></div>
     </div>
 
@@ -1363,25 +1341,25 @@ const SW_COLORS = ['#e8f4f8','#f0e8f8','#f8f0e8','#e8f8f0',
 
 // ── STATE ──
 let isAdm = false;
-let detailIdx = null;      // index into projects[]
-let detailProjId = null;   // actual DB id
+let detailIdx = null;
+let detailProjId = null;
 let selSem = null;
 let showNsc = false;
 let aboutOpen = false;
 let editingLB = {};
 let selectedArcSem = null;
 let arcView = 'grid';
-let detailDirty = false;
-let semesters = [];        // local list for sem pills
-let projects = [];         // local gallery projects (active sem)
-let detailComments = [];   // comments for current detail view
+let galleryView = 'grid';
+let lbView = 'grid';
+let semesters = [];
+let projects = [];
 let facultyList = [];
 let studentList = [];
 let selectedFaculty = [];
 let selectedStudents = [];
-let currentViewUrl = null;    // ← 이 줄 추가
-let editorMode = 'create';    // ← 없으면 추가
-let currentProjectId = null;  // ← 없으면 추가
+let currentViewUrl = null;
+let editorMode = 'create';
+let currentProjectId = null;
 
 // ── UTILS ──
 function showToast(msg) {
@@ -1705,7 +1683,6 @@ function onVideoUrlInput() {
   btn.style.cursor = 'pointer';
 }
   
-//function closeAddForm() { document.getElementById('add-form-wrap').classList.remove('open'); }
 let pickerMode = null;
 
 function formatFacultyName(f) {
@@ -1816,58 +1793,34 @@ function savePicker() {
   if (pickerMode === 'faculty') {
     selectedFaculty = checkedIndexes.map(i => facultyList[i]);
     const val = selectedFaculty.map(formatFacultyName).join(', ');
-    const target = document.getElementById('em-sup') || document.getElementById('f-sup');
+    const target = document.getElementById('em-sup');
     if (target) target.value = val;
   }
 
   if (pickerMode === 'student') {
     selectedStudents = checkedIndexes.map(i => studentList[i]);
     const val = selectedStudents.map(formatStudentName).join(', ');
-    const target = document.getElementById('em-members') || document.getElementById('f-members');
+    const target = document.getElementById('em-members');
     if (target) target.value = val;
   }
 
   closePicker();
 }
 
-async function submitProject() {
-  const title = document.getElementById('f-title').value.trim();
-  if (!title) { showToast('Project title is required.'); return; }
-  const semId = selSem || semesters[0]?.id;
-  if (!semId) { showToast('Please select a semester.'); return; }
-  const selColor = document.querySelector('.sw.sel')?.style.background || SW_COLORS[0];
-  const tags = document.getElementById('f-tags').value.split(',').map(t => t.trim()).filter(Boolean);
-  try {
-    await adminSaveProject({
-      semester_id: semId,
-      title,
-      team_name: document.getElementById('f-team').value.trim(),
-    
-      supervisor_emails: selectedFaculty.map(f => f.email).filter(Boolean),
-      supervisor_names: selectedFaculty.map(formatFacultyName).filter(Boolean),
-    
-      member_ids: selectedStudents.length
-        ? selectedStudents.map(s => String(s.id)).filter(Boolean)
-        : document.getElementById('f-members').value.split(',').map(m => m.trim()).filter(Boolean),
-    
-      description: document.getElementById('f-desc').value.trim(),
-      tags,
-      card_color: selColor,
-      video_url: null,
-    });
-    closeAddForm();
-    showToast('Project added!');
-    await loadAll();
-  } catch (err) { showToast('Error: ' + err.message); }
+// ── GALLERY ──
+function setGalleryView(v) {
+  galleryView = v;
+  document.getElementById('g-vt-grid').classList.toggle('active', v === 'grid');
+  document.getElementById('g-vt-list').classList.toggle('active', v === 'list');
+  renderGallery();
 }
 
-// ── GALLERY ──
 function renderGallery() {
   const g = document.getElementById('ggrid'); g.innerHTML = '';
   document.getElementById('g-adm-ctrl').style.display = isAdm ? 'flex' : 'none';
   const activeSem = appData.semesters.find(s => s.status === 'active');
   const pill = document.querySelector('.live-pill');
-  
+
   if (activeSem) {
     document.getElementById('pill-txt').textContent = `${activeSem.name} open`;
     pill.classList.remove('inactive');
@@ -1879,50 +1832,76 @@ function renderGallery() {
   const sorted = [...appData.projects].sort((a, b) =>
     (appData.votes[b.id] || 0) - (appData.votes[a.id] || 0));
 
-  sorted.forEach((p, idx) => {
-    const voteCount = appData.votes[p.id] || 0;
-    const liked = appData.myVotes.includes(p.id);
-    const cmtCount = 0; // loaded on demand
-
-    const c = document.createElement('div'); c.className = 'pcard';
-    c.onclick = () => showDetail(idx, p);
-    c.innerHTML = `
-      <button class="pdel" onclick="event.stopPropagation();delProject('${p.id}')">✕</button>
-      <div class="pthumb ${p.video_url ? 'has-video' : 'no-video'}">
-        <div class="pthumb-tint" style="background:${p.card_color || '#e8f4f8'}"></div>
-        <div class="pthumb-play">${p.video_url ? '▶' : 'AIR'}</div>
-        <div class="pthumb-label">${p.video_url ? 'Video' : 'Video can be added later'}</div>
-      </div>
-      <div class="pbody">
-        <div class="pname">${p.title}</div>
-        <div class="pteam">${p.team_name||''}</div>
-        <div class="psup">${
-          p.supervisor_names?.length
-            ? 'Sup. ' + p.supervisor_names.join(', ')
-            : p.supervisor_email
-              ? 'Sup. ' + p.supervisor_email
-              : ''
-        }</div>
-        <div class="pfoot">
-          <div style="display:flex;align-items:center;gap:5px">
-            <button class="hbtn${liked?' liked':''}" onclick="event.stopPropagation();handleVote('${p.id}')">${liked?'❤️':'🤍'}</button>
-            <span class="hcnt">${voteCount}</span>
-          </div>
-          <span class="ccnt">💬 ${cmtCount}</span>
-        </div>
-      </div>`;
-    g.appendChild(c);
-  });
-
-  const ec = document.createElement('div'); ec.className = 'add-empty-card'; ec.onclick = openAddForm;
-  ec.innerHTML = '<div class="plus">＋</div><div>Add project</div>';
-  g.appendChild(ec);
-  document.getElementById('app').classList.toggle('adm', isAdm);
-
-  // update stats
+  document.getElementById('g-count-lbl').textContent = `${sorted.length} projects`;
   document.getElementById('stat-cur').textContent = appData.projects.length;
   const totalVotes = Object.values(appData.votes).reduce((a, b) => a + b, 0);
   document.getElementById('stat-votes').textContent = totalVotes.toLocaleString();
+  document.getElementById('app').classList.toggle('adm', isAdm);
+
+  if (galleryView === 'grid') {
+    g.className = 'ggrid';
+    sorted.forEach((p, idx) => {
+      const voteCount = appData.votes[p.id] || 0;
+      const liked = appData.myVotes.includes(p.id);
+      const c = document.createElement('div'); c.className = 'pcard';
+      c.onclick = () => showDetail(idx, p);
+      c.innerHTML = `
+        <button class="pdel" onclick="event.stopPropagation();delProject('${p.id}')">✕</button>
+        <div class="pthumb ${p.video_url ? 'has-video' : 'no-video'}">
+          <div class="pthumb-tint" style="background:${p.card_color || '#e8f4f8'}"></div>
+          <div class="pthumb-play">${p.video_url ? '▶' : 'AIR'}</div>
+          <div class="pthumb-label">${p.video_url ? 'Video' : 'Video can be added later'}</div>
+        </div>
+        <div class="pbody">
+          <div class="pname">${p.title}</div>
+          <div class="pteam">${p.team_name||''}</div>
+          <div class="psup">${p.supervisor_names?.length ? 'Sup. '+p.supervisor_names.join(', ') : p.supervisor_email ? 'Sup. '+p.supervisor_email : ''}</div>
+          <div class="pfoot">
+            <div style="display:flex;align-items:center;gap:5px">
+              <button class="hbtn${liked?' liked':''}" onclick="event.stopPropagation();handleVote('${p.id}')">${liked?'❤️':'🤍'}</button>
+              <span class="hcnt">${voteCount}</span>
+            </div>
+            <span class="ccnt">💬 0</span>
+          </div>
+        </div>`;
+      g.appendChild(c);
+    });
+    if (isAdm) {
+      const ec = document.createElement('div'); ec.className = 'add-empty-card'; ec.onclick = openAddForm;
+      ec.innerHTML = '<div class="plus">＋</div><div>Add project</div>';
+      g.appendChild(ec);
+    }
+  } else {
+    g.className = 'gl-list';
+    sorted.forEach((p, idx) => {
+      const voteCount = appData.votes[p.id] || 0;
+      const liked = appData.myVotes.includes(p.id);
+      const row = document.createElement('div'); row.className = 'gl-row';
+      row.onclick = () => showDetail(idx, p);
+      row.innerHTML = `
+        <div class="gl-thumb-sm ${p.video_url ? 'has-video' : 'no-video'}">
+          <div class="gl-tint" style="background:${p.card_color||'#e8f4f8'}"></div>
+          <span class="gl-play">${p.video_url ? '▶' : 'AIR'}</span>
+        </div>
+        <div>
+          <div class="gl-row-title">${p.title}</div>
+          <div class="gl-row-sub">${p.team_name||''}${p.supervisor_names?.length ? ' · Sup. '+p.supervisor_names.join(', ') : ''}</div>
+          <div class="gl-row-tags">${(p.tags||[]).map(t=>`<span class="gl-row-tag">${t}</span>`).join('')}</div>
+        </div>
+        <div class="gl-row-right">
+          <span class="gl-row-votes">${liked?'❤️':'🤍'} ${voteCount}</span>
+          ${isAdm ? `<button onclick="event.stopPropagation();delProject('${p.id}')" style="font-size:.75rem;color:var(--a);background:none;border:none;cursor:pointer;padding:0;">✕</button>` : ''}
+        </div>`;
+      g.appendChild(row);
+    });
+    if (isAdm) {
+      const addRow = document.createElement('div');
+      addRow.style.cssText = 'padding:12px 14px;text-align:center;font-size:.85rem;color:var(--m);cursor:pointer;border:1px dashed var(--b2);border-radius:12px;margin-top:8px;';
+      addRow.textContent = '＋ Add project';
+      addRow.onclick = openAddForm;
+      g.appendChild(addRow);
+    }
+  }
 }
 
 async function handleVote(projectId) {
@@ -1992,19 +1971,23 @@ async function renderArchiveContent() {
       });
       cont.appendChild(grid);
     } else {
-      const list = document.createElement('div'); list.className = 'arc-list';
+      const list = document.createElement('div'); list.className = 'gl-list';
       projs.forEach(p => {
-        const row = document.createElement('div'); row.className = 'arc-list-row';
+        const row = document.createElement('div'); row.className = 'gl-row';
+        row.onclick = () => { const idx = appData.projects.findIndex(x => x.id === p.id); showDetail(idx > -1 ? idx : 0, p); };
         row.innerHTML = `
-          <div class="arc-icon">
-            <div class="arc-icon-tint" style="background:${p.card_color||'#e8f4f8'}"></div>
-            <span class="arc-icon-play">${p.video_url ? '▶' : 'AIR'}</span>
+          <div class="gl-thumb-sm ${p.video_url ? 'has-video' : 'no-video'}">
+            <div class="gl-tint" style="background:${p.card_color||'#e8f4f8'}"></div>
+            <span class="gl-play">${p.video_url ? '▶' : 'AIR'}</span>
           </div>
           <div>
-            <div class="arc-list-name">${p.title}</div>
-            <div class="arc-list-sub">${p.team_name||''}</div>
+            <div class="gl-row-title">${p.title}</div>
+            <div class="gl-row-sub">${p.team_name||''}</div>
+            <div class="gl-row-tags">${(p.tags||[]).map(t=>`<span class="gl-row-tag">${t}</span>`).join('')}</div>
           </div>
-          <div class="arc-list-tags">${(p.tags||[]).map(t=>`<span class="arc-list-tag">${t}</span>`).join('')}</div>`;
+          <div class="gl-row-right">
+            <span class="gl-row-votes">♡ ${appData.votes[p.id]||0}</span>
+          </div>`;
         list.appendChild(row);
       });
       cont.appendChild(list);
@@ -2013,6 +1996,13 @@ async function renderArchiveContent() {
 }
 
 // ── LEADERBOARD ──
+function setLBView(v) {
+  lbView = v;
+  document.getElementById('lb-vt-grid').classList.toggle('active', v === 'grid');
+  document.getElementById('lb-vt-list').classList.toggle('active', v === 'list');
+  renderLB();
+}
+
 function renderLB() {
   const body = document.getElementById('lb-body'); body.innerHTML = '';
   appData.semesters.forEach(sem => {
@@ -2057,24 +2047,50 @@ function renderLB() {
         ea.innerHTML = buildEditHTML(sem.id, semAwards);
         grp.appendChild(ea);
       } else if (semAwards.length > 0) {
-        semAwards.forEach(aw => {
-          const card = document.createElement('div'); card.className = 'award-card';
-          const proj = appData.projects.find(p => p.id === aw.project_id) || {};
-          card.innerHTML = `
-            <div class="award-video" style="background:#1a1a2e;">
-              <div style="position:absolute;inset:0;opacity:.15;background:${proj.card_color||'#e8f4f8'}"></div>
-              <div class="play-btn">▶</div>
-            </div>
-            <div class="award-body">
-              <div>
-                <div class="award-name">${aw.award_name}</div>
-                <div class="award-proj-title">${proj.title||aw.project_id}</div>
-                <div class="award-members">${proj.team_name||''}</div>
+        if (lbView === 'grid') {
+          semAwards.forEach(aw => {
+            const card = document.createElement('div'); card.className = 'award-card';
+            const proj = appData.projects.find(p => p.id === aw.project_id) || {};
+            card.onclick = () => { const i = appData.projects.findIndex(p => p.id === aw.project_id); if (i > -1) showDetail(i, appData.projects[i]); };
+            card.innerHTML = `
+              <div class="award-video" style="background:#1a1a2e;">
+                <div style="position:absolute;inset:0;opacity:.15;background:${proj.card_color||'#e8f4f8'}"></div>
+                <div class="play-btn">▶</div>
               </div>
-              <div class="award-hearts">♡ ${appData.votes[aw.project_id]||0} votes</div>
-            </div>`;
-          grp.appendChild(card);
-        });
+              <div class="award-body">
+                <div>
+                  <div class="award-name">${aw.award_name}</div>
+                  <div class="award-proj-title">${proj.title||aw.project_id}</div>
+                  <div class="award-members">${proj.team_name||''}</div>
+                </div>
+                <div class="award-hearts">♡ ${appData.votes[aw.project_id]||0} votes</div>
+              </div>`;
+            grp.appendChild(card);
+          });
+        } else {
+          const list = document.createElement('div'); list.className = 'gl-list';
+          semAwards.forEach(aw => {
+            const proj = appData.projects.find(p => p.id === aw.project_id) || {};
+            const i = appData.projects.findIndex(p => p.id === aw.project_id);
+            const row = document.createElement('div'); row.className = 'gl-row';
+            row.onclick = () => { if (i > -1) showDetail(i, appData.projects[i]); };
+            row.innerHTML = `
+              <div class="gl-thumb-sm ${proj.video_url ? 'has-video' : 'no-video'}">
+                <div class="gl-tint" style="background:${proj.card_color||'#e8f4f8'}"></div>
+                <span class="gl-play">${proj.video_url ? '▶' : 'AIR'}</span>
+              </div>
+              <div>
+                <div class="aw-badge">${aw.award_name}</div>
+                <div class="gl-row-title">${proj.title||aw.project_id}</div>
+                <div class="gl-row-sub">${proj.team_name||''}</div>
+              </div>
+              <div class="gl-row-right">
+                <span class="gl-row-votes">♡ ${appData.votes[aw.project_id]||0}</span>
+              </div>`;
+            list.appendChild(row);
+          });
+          grp.appendChild(list);
+        }
       } else {
         const notice = document.createElement('div');
         notice.style.cssText = 'font-size:.9rem;color:var(--m);font-style:italic;padding:8px 0;';
@@ -2149,41 +2165,6 @@ async function updateAwardProj(awardId, projId) {
   catch (err) { showToast('Error: ' + err.message); }
 }
 function doneEditing(semId) { editingLB[semId] = false; renderLB(); }
-
-// ── DETAIL ──
-function markDirty() { detailDirty = true; setSaveBtn('dirty'); }
-function setSaveBtn(s) {
-  const b = document.getElementById('btn-save');
-  if (s === 'dirty') { b.className = 'btn-save dirty'; b.textContent = 'Save changes'; }
-  else if (s === 'saved') { b.className = 'btn-save saved'; b.textContent = '✓ Saved'; }
-  else { b.className = 'btn-save clean'; b.textContent = 'Save changes'; }
-}
-function applyDetailAdmMode() {
-  document.getElementById('detail-wrap').classList.toggle('adm-detail', isAdm);
-  document.getElementById('d-title-input').readOnly = !isAdm;
-  const desc = document.getElementById('d-desc-input'); desc.readOnly = !isAdm; desc.style.resize = isAdm ? 'vertical' : 'none';
-  document.querySelectorAll('.meta-editable').forEach(el => el.readOnly = !isAdm);
-  setSaveBtn('clean'); detailDirty = false;
-}
-function renderDetailVideo(proj) {
-  const thumb = document.getElementById('d-thumb');
-  const play = thumb.querySelector('.dvideo-play');
-  const caption = thumb.querySelector('.dvideo-caption');
-
-  document.getElementById('d-tint').style.background = proj.card_color || '#e8f4f8';
-
-  if (proj.video_url) {
-    thumb.classList.add('has-video');
-    thumb.classList.remove('no-video');
-    play.textContent = '▶';
-    caption.textContent = 'Click to play';
-  } else {
-    thumb.classList.add('no-video');
-    thumb.classList.remove('has-video');
-    play.textContent = 'AIR';
-    caption.textContent = 'Video can be added later';
-  }
-}
 
 function showDetail(idx, proj) {
   if (isAdm) {
@@ -2279,63 +2260,6 @@ function closeViewPage() {
   go('main');
 }
 
-function renderDetailTags(tags) {
-  const row = document.getElementById('d-tags-row'); row.innerHTML = '';
-  tags.forEach((t, ti) => {
-    const span = document.createElement('span'); span.className = 'dtag';
-    span.innerHTML = `${t}<button class="tag-del" onclick="delTag(${ti})">✕</button>`;
-    row.appendChild(span);
-  });
-}
-function delTag(ti) {
-  if (detailIdx === null) return;
-  appData.projects[detailIdx].tags.splice(ti, 1);
-  renderDetailTags(appData.projects[detailIdx].tags);
-  markDirty();
-}
-function onTagKeydown(e) {
-  if (e.key !== 'Enter') return;
-  const inp = document.getElementById('tag-input');
-  const val = inp.value.trim();
-  if (!val || detailIdx === null) return;
-  if (!appData.projects[detailIdx].tags.includes(val)) {
-    appData.projects[detailIdx].tags.push(val);
-    renderDetailTags(appData.projects[detailIdx].tags);
-    markDirty();
-  }
-  inp.value = ''; e.preventDefault();
-}
-async function saveDetail() {
-  if (!detailDirty || detailIdx === null) return;
-  const p = appData.projects[detailIdx];
-  const updates = {
-    title: document.getElementById('d-title-input').value,
-    description: document.getElementById('d-desc-input').value,
-    tags: p.tags,
-  };
-  document.querySelectorAll('.meta-editable').forEach(el => {
-    const k = el.dataset.key;
-    if (k === 'team_name') updates.team_name = el.value;
-    if (k === 'supervisor_email') updates.supervisor_email = el.value;
-  });
-  try {
-    await adminUpdateProject(detailProjId, updates);
-    setSaveBtn('saved'); detailDirty = false;
-    Object.assign(p, updates);
-    renderGallery();
-    showToast('Changes saved.');
-  } catch (err) { showToast('Error: ' + err.message); }
-}
-
-function updateDHeart() {
-  if (detailIdx === null) return;
-  const p = appData.projects[detailIdx];
-  const liked = appData.myVotes.includes(p.id);
-  const count = appData.votes[p.id] || 0;
-  document.getElementById('bh-btn').textContent = liked ? '❤️' : '🤍';
-  document.getElementById('bh-cnt').textContent = count;
-}
-
 function initNickname() {
   const saved = localStorage.getItem('airshow_nickname');
   const locked = localStorage.getItem('airshow_name_locked');
@@ -2416,37 +2340,6 @@ async function deleteViewCmt(cmtId) {
   } catch (err) { showToast('Error: ' + err.message); }
 }
   
-function toggleDHeart() {
-  if (detailIdx === null || isAdm) return;
-  const p = appData.projects[detailIdx];
-  const b = document.getElementById('bh-btn');
-  b.style.transform = 'scale(1.3)';
-  setTimeout(() => b.style.transform = '', 200);
-  handleVote(p.id);
-}
-
-function renderDCmts() {
-  const list = document.getElementById('cmt-list');
-  if (detailComments.length === 0) {
-    list.innerHTML = `<p style="font-size:.9rem;color:var(--m);padding:1rem 0;font-style:italic;">No comments yet. Be the first!</p>`;
-    return;
-  }
-  list.innerHTML = detailComments.map((c, ci) => {
-    const name = c.author_name || 'Anonymous';
-    const bg = avatarColor(name);
-    const init = avatarInitials(name);
-    const ts = c.created_at ? new Date(c.created_at).toLocaleString() : '';
-    return `<div class="cmt-item">
-      <div class="cmt-avatar" style="background:${bg}">${init}</div>
-      <div class="cmt-body">
-        <div class="cmt-auth">${name}<span class="cmt-time">${ts}</span></div>
-        <div class="cmt-txt">${c.content}</div>
-      </div>
-      <button class="cmt-del" onclick="delCmt(${ci},'${c.id}')">Delete</button>
-    </div>`;
-  }).join('');
-}
-
 async function postCmt() {
   if (detailProjId === null) return;
   const nameEl = document.getElementById('nick-input');
@@ -2474,16 +2367,6 @@ async function postCmt() {
     const cmts = await loadComments(detailProjId);
     renderViewCmts(cmts);
   } catch (err) { showToast('Error posting comment: ' + err.message); }
-}
-
-async function delCmt(ci, cmtId) {
-  if (!confirm('Delete this comment?')) return;
-  try {
-    await deleteCommentDB(cmtId);
-    detailComments.splice(ci, 1);
-    renderDCmts();
-    showToast('Comment deleted.');
-  } catch (err) { showToast('Error: ' + err.message); }
 }
 
 // ── ADMIN ──
@@ -2518,8 +2401,6 @@ async function checkPw() {
   renderGallery();
   renderLB();
 
-  //if (detailIdx !== null) applyDetailAdmMode();
-
   go('main');
 }
   
@@ -2535,18 +2416,6 @@ async function exitAdm() {
   go('main');
   renderGallery();
   renderLB();
-}
-
-// ── SWATCHES ──
-function initSwatches() {
-  const c = document.getElementById('swatches'); if (c.children.length) return;
-  SW_COLORS.forEach((s, i) => {
-    const el = document.createElement('div');
-    el.className = 'sw' + (i === 0 ? ' sel' : '');
-    el.style.background = s;
-    el.onclick = () => { document.querySelectorAll('.sw').forEach(x => x.classList.remove('sel')); el.classList.add('sel'); };
-    c.appendChild(el);
-  });
 }
 
 // ── INIT ──
