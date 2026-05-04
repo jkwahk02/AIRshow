@@ -341,7 +341,7 @@ async function loadAll() {
     appData.awards = await sbGet(TBL_AWARDS,
       'order=semester_id.desc,display_order.asc');
 
-    const allComments = await sbGet(TBL_COMMENTS, 'select=project_id');
+    const allComments = await sbGet(TBL_COMMENTS, 'select=project_id&deleted_at=is.null');
     appData.commentCounts = {};
     allComments.forEach(c => {
       appData.commentCounts[c.project_id] = (appData.commentCounts[c.project_id] || 0) + 1;
@@ -2454,6 +2454,10 @@ async function deleteViewCmt(cmtId) {
     document.getElementById(`cmt-${cmtId}`).remove();
     const mine = JSON.parse(localStorage.getItem('airshow_my_cmts') || '[]');
     localStorage.setItem('airshow_my_cmts', JSON.stringify(mine.filter(id => id !== cmtId)));
+    // ✅ commentCounts 동기화
+    if (detailProjId !== null) {
+      appData.commentCounts[detailProjId] = Math.max(0, (appData.commentCounts[detailProjId] || 1) - 1);
+    }
     showToast('Comment deleted.');
   } catch (err) { showToast('Error: ' + err.message); }
 }
