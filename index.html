@@ -255,6 +255,8 @@ let appData = {
   myVotes:   [],   // project_ids voted by this voter_token
   awards:    [],
   comments:  {},   // { project_id: [comments] }
+  commentCounts: {},  // { project_id: count }
+
 };
 
 
@@ -280,6 +282,12 @@ async function loadAll() {
 
     appData.awards = await sbGet(TBL_AWARDS,
       'order=semester_id.desc,display_order.asc');
+
+    const allComments = await sbGet(TBL_COMMENTS, 'select=project_id');
+    appData.commentCounts = {};
+    allComments.forEach(c => {
+      appData.commentCounts[c.project_id] = (appData.commentCounts[c.project_id] || 0) + 1;
+    });
 
     const allProjects = await sbGet(TBL_PROJECTS, 'select=id');
     document.getElementById('stat-all').textContent = allProjects.length;
@@ -734,8 +742,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);font
 .gl-row-sub{font-size:.875rem;color:var(--m);margin-bottom:5px;}
 .gl-row-tags{display:flex;gap:4px;flex-wrap:wrap;}
 .gl-row-tag{font-size:.75rem;padding:3px 10px;background:rgba(26,26,46,.06);border-radius:20px;color:rgba(26,26,46,.5);}
-.gl-row-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;}
-.gl-row-votes{font-size:.875rem;color:var(--m);}
+.gl-row-right{display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0;}
+.gl-row-stat{display:flex;align-items:center;gap:5px;}
+.gl-row-stat-btn{background:none;border:none;cursor:pointer;font-size:16px;padding:0;line-height:1;}
+.gl-row-stat-num{font-size:13px;color:var(--m);min-width:16px;text-align:left;}
 .aw-badge{font-size:.72rem;font-weight:500;padding:2px 8px;border-radius:20px;background:rgba(26,26,46,.06);color:var(--m);margin-bottom:4px;display:inline-block;}
 @media(max-width:600px){.gl-row{grid-template-columns:64px 1fr;}.gl-row-right{display:none;}}
 
@@ -1861,7 +1871,7 @@ function renderGallery() {
               <button class="hbtn${liked?' liked':''}" onclick="event.stopPropagation();handleVote('${p.id}')">${liked?'❤️':'🤍'}</button>
               <span class="hcnt">${voteCount}</span>
             </div>
-            <span class="ccnt">💬 0</span>
+            <span class="ccnt">💬 ${appData.commentCounts[p.id] || 0}</span>
           </div>
         </div>`;
       g.appendChild(c);
@@ -1889,8 +1899,14 @@ function renderGallery() {
           <div class="gl-row-tags">${(p.tags||[]).map(t=>`<span class="gl-row-tag">${t}</span>`).join('')}</div>
         </div>
         <div class="gl-row-right">
-          <button class="hbtn${liked?' liked':''}" onclick="event.stopPropagation();handleVote('${p.id}')">${liked?'❤️':'🤍'}</button>
-          <span style="font-size:.8rem;color:var(--m);">${voteCount}</span>
+          <div class="gl-row-stat">
+            <button class="gl-row-stat-btn${liked?' liked':''}" onclick="event.stopPropagation();handleVote('${p.id}')">${liked?'❤️':'🤍'}</button>
+            <span class="gl-row-stat-num">${voteCount}</span>
+          </div>
+          <div class="gl-row-stat">
+            <span style="font-size:15px;line-height:1;">💬</span>
+            <span class="gl-row-stat-num">${appData.commentCounts[p.id] || 0}</span>
+          </div>
           ${isAdm ? `<button onclick="event.stopPropagation();delProject('${p.id}')" style="font-size:.75rem;color:var(--a);background:none;border:none;cursor:pointer;padding:0;">✕</button>` : ''}
         </div>`;
       g.appendChild(row);
