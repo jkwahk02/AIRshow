@@ -1469,6 +1469,7 @@ function go(p) {
   document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
   document.getElementById({ main: 'p-main', edit: 'p-edit', view: 'p-view', pw: 'p-pw' }[p]).classList.add('active');
   window.scrollTo(0, 0);
+  if (p === 'main') renderGallery();
 }
 
 // ── SEMESTER PILLS (add form) ──
