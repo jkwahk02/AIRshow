@@ -1928,6 +1928,8 @@ function setGalleryView(v) {
 
 function renderGallery() {
   const g = document.getElementById('ggrid'); g.innerHTML = '';
+  const existingDraft = document.getElementById('draft-section');
+  if (existingDraft) existingDraft.remove();
   document.getElementById('g-adm-ctrl').style.display = isAdm ? 'flex' : 'none';
   const activeSem = appData.semesters.find(s => s.status === 'active');
   const pill = document.querySelector('.live-pill');
