@@ -1585,10 +1585,10 @@ async function loadAndRenderEmComments(projectId) {
     list.innerHTML = cmts.map((c, ci) => `
       <div class="cmt-item">
         <div class="cmt-body" style="flex:1">
-          <div class="cmt-auth">${c.author_name || 'Anonymous'}
+          <div class="cmt-auth">${escapeHtml(c.author_name) || 'Anonymous'}
             <span class="cmt-time">${c.created_at ? new Date(c.created_at).toLocaleString() : ''}</span>
           </div>
-          <div class="cmt-txt">${c.content}</div>
+          <div class="cmt-txt">${escapeHtml(c.content)}</div>
         </div>
         <button class="cmt-del" style="display:block" onclick="deleteEmComment('${c.id}', this)">Delete</button>
       </div>`).join('');
@@ -2261,6 +2261,12 @@ function closeViewPage() {
   go('main');
 }
 
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;')
+            .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+}
+
 function initNickname() {
   const saved = localStorage.getItem('airshow_nickname');
   const locked = localStorage.getItem('airshow_name_locked');
@@ -2286,9 +2292,9 @@ function renderViewCmts(cmts) {
     const isMine = mine.includes(c.id);
     return `
       <div class="cmt-item" id="cmt-${c.id}">
-        <div class="cmt-avatar" style="background:${avatarColor(c.author_name||'A')}">${avatarInitials(c.author_name||'A')}</div>
+        <div class="cmt-avatar" style="background:${avatarColor(c.author_name||'A')}">${escapeHtml(avatarInitials(c.author_name||'A'))}</div>
         <div class="cmt-body" style="flex:1;">
-          <div class="cmt-auth">${c.author_name||'Anonymous'}
+          <div class="cmt-auth">${escapeHtml(c.author_name)||'Anonymous'}
             <span class="cmt-time">${c.created_at ? new Date(c.created_at).toLocaleString() : ''}</span>
             ${isMine ? `
               <span style="margin-left:auto;display:inline-flex;gap:6px;">
@@ -2296,7 +2302,7 @@ function renderViewCmts(cmts) {
                 <button onclick="deleteViewCmt('${c.id}')" style="font-size:.75rem;color:var(--a);background:none;border:none;cursor:pointer;padding:0;">Delete</button>
               </span>` : ''}
           </div>
-          <div class="cmt-txt" id="cmt-txt-${c.id}">${c.content}</div>
+          <div class="cmt-txt" id="cmt-txt-${c.id}">${escapeHtml(c.content)}</div>
         </div>
       </div>`;
   }).join('');
