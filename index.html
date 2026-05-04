@@ -310,6 +310,7 @@ async function sbSoftDelete(table, col, val) {
 let appData = {
   semesters: [],
   projects:  [],
+  draftProjects: [],  // ← 추가
   votes:     {},   // { project_id: count }
   myVotes:   [],   // project_ids voted by this voter_token
   awards:    [],
@@ -328,6 +329,13 @@ async function loadAll() {
     appData.projects = activeSem
       ? await sbGet(TBL_PROJECTS, `semester_id=eq.${activeSem.id}&order=created_at.desc`)
       : [];
+
+    const draftSems = appData.semesters.filter(s => s.status === 'draft');
+    appData.draftProjects = [];
+    for (const ds of draftSems) {
+      const dp = await sbGet(TBL_PROJECTS, `semester_id=eq.${ds.id}&order=created_at.desc`);
+      appData.draftProjects.push(...dp.map(p => ({ ...p, _draftSemName: ds.name, _draftSemId: ds.id })));
+    }
 
     const allVotes = await sbGet(TBL_VOTES, 'select=project_id,voter_token');
     allVotes.forEach(v => {
@@ -2012,8 +2020,93 @@ function renderGallery() {
       g.appendChild(addRow);
     }
   }
+  // admin이고 draft 프로젝트가 있을 때만
+  if (isAdm && appData.draftProjects?.length > 0) {
+    renderDraftSection();
+  }
 }
 
+function renderDraftSection() {
+  const existing = document.getElementById('draft-section');
+  if (existing) existing.remove();
+
+  const section = document.createElement('div');
+  section.id = 'draft-section';
+
+  const activeSem = appData.semesters.find(s => s.status === 'active');
+  const canPublish = !activeSem;
+
+  // draft 학기별로 그룹핑
+  const draftSemIds = [...new Set(appData.draftProjects.map(p => p._draftSemId))];
+
+  draftSemIds.forEach(semId => {
+    const semName = appData.draftProjects.find(p => p._draftSemId === semId)._draftSemName;
+    const projs = appData.draftProjects.filter(p => p._draftSemId === semId);
+
+    // 구분선
+    const divider = document.createElement('div');
+    divider.style.cssText = 'display:flex;align-items:center;gap:10px;margin:2rem 0 1rem;';
+    divider.innerHTML = `
+      <div style="flex:1;height:1px;background:var(--b);"></div>
+      <span style="font-size:.75rem;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--m);">Draft</span>
+      <span style="font-size:.75rem;color:var(--m);background:var(--ab);border:1px solid var(--b);border-radius:20px;padding:2px 10px;">${escapeHtml(semName)}</span>
+      <div style="flex:1;height:1px;background:var(--b);"></div>`;
+    section.appendChild(divider);
+
+    // 안내 + Publish 버튼
+    const notice = document.createElement('div');
+    notice.style.cssText = 'display:flex;align-items:center;justify-content:space-between;font-size:.82rem;color:var(--m);background:var(--ab);border:1px solid var(--b);border-radius:10px;padding:10px 14px;margin-bottom:1rem;gap:12px;';
+    const publishBtn = canPublish
+      ? `<button onclick="publishSemester('${semId}')" style="font-size:.82rem;padding:5px 14px;background:var(--txt);color:#fff;border:none;border-radius:8px;cursor:pointer;white-space:nowrap;">Publish semester</button>`
+      : `<button disabled title="Close the current active semester before publishing" style="font-size:.82rem;padding:5px 14px;background:var(--txt);color:#fff;border:none;border-radius:8px;opacity:.35;cursor:not-allowed;white-space:nowrap;">Publish semester</button>`;
+    notice.innerHTML = `<span>Admin only — not visible to the public.</span>${publishBtn}`;
+    section.appendChild(notice);
+
+    // 프로젝트 그리드 (기존 pcard 스타일 그대로)
+    const grid = document.createElement('div');
+    grid.className = 'ggrid';
+    projs.forEach(p => {
+      const c = document.createElement('div');
+      c.className = 'pcard';
+      c.style.cssText = 'border-style:dashed;opacity:.85;';
+      c.onclick = () => showDetail(-1, p);
+      c.innerHTML = `
+        <button class="pdel" onclick="event.stopPropagation();delProject('${p.id}')">✕</button>
+        <div style="position:absolute;top:8px;left:8px;font-size:.65rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;background:rgba(26,26,46,.55);color:rgba(255,255,255,.85);border-radius:20px;padding:2px 8px;z-index:2;">draft</div>
+        <div class="pthumb ${p.video_url ? 'has-video' : 'no-video'}">
+          <div class="pthumb-tint" style="background:${p.card_color || '#e8f4f8'}"></div>
+          <div class="pthumb-play">${p.video_url ? '▶' : 'AIR'}</div>
+          <div class="pthumb-label">${p.video_url ? 'Video' : 'Video can be added later'}</div>
+        </div>
+        <div class="pbody">
+          <div class="pname">${escapeHtml(p.title)}</div>
+          <div class="pteam">${escapeHtml(p.team_name || '')}</div>
+          <div class="psup">${p.supervisor_names?.length ? 'Sup. ' + p.supervisor_names.map(n => escapeHtml(n)).join(', ') : ''}</div>
+          <div class="pfoot">
+            <div style="display:flex;align-items:center;gap:5px;">
+              <button class="hbtn" style="opacity:.35;pointer-events:none;">🤍</button>
+              <span class="hcnt">—</span>
+            </div>
+            <span class="ccnt">💬 ${appData.commentCounts[p.id] || 0}</span>
+          </div>
+        </div>`;
+      grid.appendChild(c);
+    });
+    section.appendChild(grid);
+  });
+
+  document.getElementById('ggrid').after(section);
+}
+
+async function publishSemester(semId) {
+  if (!confirm('Publish this semester? It will become the active semester.')) return;
+  try {
+    await sbUpdate(TBL_SEMESTERS, 'id', semId, { status: 'active' });
+    showToast('Semester published.');
+    await loadAll();
+  } catch (err) { showToast('Error: ' + err.message); }
+}
+  
 async function handleVote(projectId) {
   await toggleVote(projectId);
 }
@@ -2115,7 +2208,7 @@ function setLBView(v) {
 
 function renderLB() {
   const body = document.getElementById('lb-body'); body.innerHTML = '';
-  appData.semesters.forEach(sem => {
+  appData.semesters.filter(s => s.status !== 'draft').forEach(sem => {
     const data = lbDataFor(sem);
     const grp = document.createElement('div'); grp.className = 'lb-group';
     const hdr = document.createElement('div'); hdr.className = 'lb-sem-hdr';
