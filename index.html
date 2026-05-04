@@ -2462,6 +2462,7 @@ async function postCmt() {
     }
 
     textEl.value = '';
+    appData.commentCounts[detailProjId] = (appData.commentCounts[detailProjId] || 0) + 1;
     const cmts = await loadComments(detailProjId);
     renderViewCmts(cmts);
   } catch (err) { showToast('Error posting comment: ' + err.message); }
