@@ -2335,6 +2335,11 @@ function buildCvHTML(semId, data) {
   });
   h += `</div>`;
   cvSlotCount = FIXED_AWARDS.length;  // slot 카운트 고정
+  h += `<button ...>＋ Add another award</button>`;
+  h += `<div class="cv-warn">⚠ ...</div>`;
+  h += `<div class="cv-actions">...</div>`;
+  return h;   // ← return 없음
+}             // ← 닫는 중괄호 없음  
 
 function buildEditHTML(semId, awards) {
   let h = `<div class="edit-area-title">✏ Editing awards</div>`;
