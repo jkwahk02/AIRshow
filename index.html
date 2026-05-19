@@ -675,7 +675,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);font
 .btn-fs{font-size:.9rem;padding:8px 20px;background:var(--txt);color:#fff;border:none;border-radius:9px;cursor:pointer;}
 
 /* ── GALLERY GRID ── */
-.ggrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:clamp(12px,2vw,18px);}
+.ggrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:clamp(12px,2vw,18px);}
 .pcard{background:var(--card);border:1px solid var(--b);border-radius:14px;overflow:hidden;cursor:pointer;transition:transform .2s,box-shadow .2s;position:relative;}
 .pcard:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(26,26,46,.11);}
 .pdel{position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:50%;background:rgba(26,26,46,.75);color:#fff;border:none;cursor:pointer;font-size:12px;display:none;align-items:center;justify-content:center;z-index:2;}
@@ -1705,8 +1705,9 @@ async function submitEditModal() {
     supervisor_emails: selectedFaculty.map(f => f.email).filter(Boolean),
     supervisor_names: selectedFaculty.map(formatFacultyName).filter(Boolean),
     member_ids: selectedStudents.length
-      ? selectedStudents.map(s => String(s.id))
+      ? selectedStudents.map(s => s.id)
       : document.getElementById('em-members').value.split(',').map(m => m.trim()).filter(Boolean),
+    member_names: selectedStudents.map(formatStudentName).filter(Boolean),
   };
 
   try {
@@ -1950,7 +1951,7 @@ function renderGallery() {
         </div>
         <div class="pbody">
           <div class="pname">${escapeHtml(p.title)}</div>
-          <div class="pteam">${escapeHtml(p.team_name||'')}</div>
+          <div class="pteam">${p.member_names?.length ? p.member_names.join(', ') : escapeHtml(p.team_name||'')}</div>
           <div class="psup">${p.supervisor_names?.length ? 'Sup. '+p.supervisor_names.map(n=>escapeHtml(n)).join(', ') : p.supervisor_email ? 'Sup. '+escapeHtml(p.supervisor_email) : ''}</div>
           <div class="pfoot">
             <div style="display:flex;align-items:center;gap:5px">
