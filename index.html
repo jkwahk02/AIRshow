@@ -317,6 +317,8 @@ async function loadAll() {
       appData.draftProjects.push(...dp.map(p => ({ ...p, _draftSemName: ds.name, _draftSemId: ds.id })));
     }
 
+    appData.votes = {};
+    appData.myVotes = [];
     const allVotes = await sbGet(TBL_VOTES, 'select=project_id,voter_token');
     allVotes.forEach(v => {
       appData.votes[v.project_id] = (appData.votes[v.project_id] || 0) + 1;
