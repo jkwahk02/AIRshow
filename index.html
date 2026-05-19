@@ -795,7 +795,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);font
 .gl-row-stat-btn{background:none;border:none;cursor:pointer;font-size:16px;padding:0;line-height:1;}
 .gl-row-stat-num{font-size:13px;color:var(--m);min-width:16px;text-align:left;}
 .aw-badge{font-size:.72rem;font-weight:500;padding:2px 8px;border-radius:20px;background:rgba(26,26,46,.06);color:var(--m);margin-bottom:4px;display:inline-block;}
-@media(max-width:600px){.gl-row{grid-template-columns:64px 1fr;}.gl-row-right{display:none;}}
+@media(max-width:600px){
+  .gl-row{grid-template-columns:1fr; gap:10px; padding:14px 16px;}
+  .gl-thumb-sm{display:none;}
+  .gl-row-right{display:none;}
+  .gl-row-tags{display:none;}
+}
 
 /* ── DETAIL PAGE ── */
 .dwrap{max-width:820px;margin:0 auto;padding:clamp(1.5rem,4vw,3rem) var(--pad);}
@@ -1186,7 +1191,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);font
       <div id="arc-content"></div>
     </div>
 
-    <div class="footer">AIRshow · Taejae University AIR Program · Advanced Independent Research</div>
+    <div class="footer">© 2026 Taejae University · AIRshow · Advanced Independent Research Program · All rights reserved</div>
   </div><!-- /p-main -->
 
   <!-- VIEW PAGE (일반 유저) -->
@@ -2008,7 +2013,7 @@ function renderGallery() {
         </div>
         <div>
           <div class="gl-row-title">${escapeHtml(p.title)}</div>
-          <div class="gl-row-sub">${escapeHtml(p.team_name||'')}${p.supervisor_names?.length ? ' · Sup. '+p.supervisor_names.map(n=>escapeHtml(n)).join(', ') : ''}</div>
+          <div class="gl-row-sub">${p.member_names?.length ? p.member_names.join(', ') : escapeHtml(p.team_name||'')}${p.supervisor_names?.length ? ' · Sup. '+p.supervisor_names.map(n=>escapeHtml(n)).join(', ') : ''}</div>
           <div class="gl-row-tags">${(p.tags||[]).map(t=>`<span class="gl-row-tag">${escapeHtml(t)}</span>`).join('')}</div>
         </div>
         <div class="gl-row-right">
