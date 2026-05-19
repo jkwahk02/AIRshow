@@ -1945,9 +1945,15 @@ function renderGallery() {
       c.innerHTML = `
         <button class="pdel" onclick="event.stopPropagation();delProject('${p.id}')">✕</button>
         <div class="pthumb ${p.video_url ? 'has-video' : 'no-video'}">
-          <div class="pthumb-tint" style="background:${p.card_color || '#e8f4f8'}"></div>
-          <div class="pthumb-play">${p.video_url ? '▶' : 'AIR'}</div>
-          <div class="pthumb-label">${p.video_url ? 'Video' : 'Video can be added later'}</div>
+          ${(() => {
+            const ytId = getYouTubeId(p.video_url || '');
+            const gdId = getGoogleDriveId(p.video_url || '');
+            if (ytId) return `<iframe src="https://www.youtube.com/embed/${ytId}" style="width:100%;height:100%;border:none;pointer-events:none;" allowfullscreen></iframe>`;
+            if (gdId) return `<iframe src="https://drive.google.com/file/d/${gdId}/preview" style="width:100%;height:100%;border:none;pointer-events:none;" allowfullscreen></iframe>`;
+            return `<div class="pthumb-tint" style="background:${p.card_color || '#e8f4f8'}"></div>
+                    <div class="pthumb-play">AIR</div>
+                    <div class="pthumb-label">Video can be added later</div>`;
+          })()}
         </div>
         <div class="pbody">
           <div class="pname">${escapeHtml(p.title)}</div>
