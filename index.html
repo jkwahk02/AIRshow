@@ -1254,6 +1254,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);font
               <button class="vote-banner-submit" id="vb-submit-btn"
                 disabled onclick="vbSubmit()">Submit vote</button>
             </div>
+            <!-- ✅ 추가 -->
+            <div style="font-size:.78rem;color:var(--m);margin-top:6px;line-height:1.5;">
+              Your email is converted to a one-way hash before saving —
+              the original address is never stored. Voting is fully anonymous.
+            </div>
           </div>
           <button class="vote-banner-cancel" onclick="cancelVotingMode()" title="Cancel">✕</button>
         </div>
@@ -2182,6 +2187,15 @@ function renderGallery() {
   }
 }
 
+async function hashEmail(email) {
+  const normalized = email.trim().toLowerCase();
+  const buf = await crypto.subtle.digest(
+    'SHA-256', new TextEncoder().encode(normalized)
+  );
+  return Array.from(new Uint8Array(buf))
+    .map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
 async function loadMyVotes(semId) {
   // voter_token 기준 조회
   const byToken = await sbGet(TBL_VOTES,
@@ -2192,12 +2206,12 @@ async function loadMyVotes(semId) {
     return;
   }
 
-  // token 미스 시 — 이메일로 재조회 (다른 브라우저에서 투표한 경우)
-  const savedEmail = localStorage.getItem('airshow_vote_email');
-  if (savedEmail) {
-    const byEmail = await sbGet(TBL_VOTES,
-      `voter_email=eq.${encodeURIComponent(savedEmail)}&semester_id=eq.${semId}&select=project_id`);
-    appData.communityVotes = byEmail.map(r => r.project_id);
+  // token 미스 시 — 저장된 이메일 해시로 재조회
+  const savedHash = localStorage.getItem('airshow_vote_email_hash');
+  if (savedHash) {
+    const byHash = await sbGet(TBL_VOTES,
+      `voter_email_hash=eq.${encodeURIComponent(savedHash)}&semester_id=eq.${semId}&select=project_id`);
+    appData.communityVotes = byHash.map(r => r.project_id);
   } else {
     appData.communityVotes = [];
   }
@@ -2296,6 +2310,8 @@ async function vbSubmit() {
   btn.textContent = 'Submitting…';
 
   try {
+    const emailHash = await hashEmail(email);
+
     // 1) voter_token 기준 기존 투표 삭제
     await fetch(
       `${SUPABASE_URL}/rest/v1/${TBL_VOTES}` +
@@ -2303,10 +2319,10 @@ async function vbSubmit() {
       { method: 'DELETE', headers: sbAnonHeaders() }
     );
 
-    // 2) 동일 이메일로 다른 브라우저에서 투표한 기록도 삭제
+    // 2) 동일 이메일 해시 기준 기존 투표 삭제 (다른 브라우저 대응)
     await fetch(
       `${SUPABASE_URL}/rest/v1/${TBL_VOTES}` +
-      `?voter_email=eq.${encodeURIComponent(email)}&semester_id=eq.${vbActiveSemId}`,
+      `?voter_email_hash=eq.${encodeURIComponent(emailHash)}&semester_id=eq.${vbActiveSemId}`,
       { method: 'DELETE', headers: sbAnonHeaders() }
     );
 
@@ -2314,12 +2330,12 @@ async function vbSubmit() {
     await sbInsert(TBL_VOTES, {
       project_id: vbSelectedCard.dataset.pid,
       voter_token: VOTER_TOKEN,
-      voter_email: email,
+      voter_email_hash: emailHash,
       semester_id: vbActiveSemId,
     });
 
-    // 4) 이메일 로컬 저장 (다음 세션에서 loadMyVotes 이메일 조회용)
-    localStorage.setItem('airshow_vote_email', email);
+    // 4) 해시만 로컬 저장 (이메일 원문 저장 안 함)
+    localStorage.setItem('airshow_vote_email_hash', emailHash);
 
     appData.communityVotes = [vbSelectedCard.dataset.pid];
     document.querySelectorAll('#ggrid .pcard').forEach(c =>
