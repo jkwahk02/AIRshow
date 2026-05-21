@@ -2183,9 +2183,24 @@ function renderGallery() {
 }
 
 async function loadMyVotes(semId) {
-  const rows = await sbGet(TBL_VOTES,
+  // voter_token 기준 조회
+  const byToken = await sbGet(TBL_VOTES,
     `voter_token=eq.${encodeURIComponent(VOTER_TOKEN)}&semester_id=eq.${semId}&select=project_id`);
-  appData.communityVotes = rows.map(r => r.project_id);
+
+  if (byToken.length) {
+    appData.communityVotes = byToken.map(r => r.project_id);
+    return;
+  }
+
+  // token 미스 시 — 이메일로 재조회 (다른 브라우저에서 투표한 경우)
+  const savedEmail = localStorage.getItem('airshow_vote_email');
+  if (savedEmail) {
+    const byEmail = await sbGet(TBL_VOTES,
+      `voter_email=eq.${encodeURIComponent(savedEmail)}&semester_id=eq.${semId}&select=project_id`);
+    appData.communityVotes = byEmail.map(r => r.project_id);
+  } else {
+    appData.communityVotes = [];
+  }
 }
   
 // ── COMMUNITY VOTE (inline, no modal) ──
@@ -2281,17 +2296,30 @@ async function vbSubmit() {
   btn.textContent = 'Submitting…';
 
   try {
+    // 1) voter_token 기준 기존 투표 삭제
     await fetch(
       `${SUPABASE_URL}/rest/v1/${TBL_VOTES}` +
       `?voter_token=eq.${encodeURIComponent(VOTER_TOKEN)}&semester_id=eq.${vbActiveSemId}`,
       { method: 'DELETE', headers: sbAnonHeaders() }
     );
+
+    // 2) 동일 이메일로 다른 브라우저에서 투표한 기록도 삭제
+    await fetch(
+      `${SUPABASE_URL}/rest/v1/${TBL_VOTES}` +
+      `?voter_email=eq.${encodeURIComponent(email)}&semester_id=eq.${vbActiveSemId}`,
+      { method: 'DELETE', headers: sbAnonHeaders() }
+    );
+
+    // 3) 새 투표 insert
     await sbInsert(TBL_VOTES, {
       project_id: vbSelectedCard.dataset.pid,
       voter_token: VOTER_TOKEN,
       voter_email: email,
       semester_id: vbActiveSemId,
     });
+
+    // 4) 이메일 로컬 저장 (다음 세션에서 loadMyVotes 이메일 조회용)
+    localStorage.setItem('airshow_vote_email', email);
 
     appData.communityVotes = [vbSelectedCard.dataset.pid];
     document.querySelectorAll('#ggrid .pcard').forEach(c =>
