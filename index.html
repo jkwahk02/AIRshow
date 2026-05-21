@@ -669,10 +669,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);font
 .vote-banner-icon{width:52px;height:52px;border-radius:50%;
   background:rgba(230,52,98,.08);border:1.5px solid rgba(230,52,98,.2);
   display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.4rem;}
-.vote-banner-title{font-size:1.05rem;font-weight:600;color:var(--txt);margin-bottom:4px;}
-.vote-banner-sub{font-size:.82rem;color:var(--m);line-height:1.6;}
+.vote-banner-title{font-size:clamp(1.1rem,1.5vw,1.3rem);font-weight:600;color:var(--txt);margin-bottom:4px;}
+.vote-banner-sub{font-size:1rem;color:var(--m);line-height:1.6;}
 .vote-banner-btn{flex-shrink:0;padding:12px 26px;background:var(--a);color:#fff;
-  border:none;border-radius:12px;font-size:.92rem;font-weight:600;
+  border:none;border-radius:12px;font-size:1rem;font-weight:600;
   cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;}
 
 /* ── VOTE OVERLAY ── */
@@ -2159,14 +2159,14 @@ async function openVoteOverlay() {
       <div class="voverlay-footer">
         <div class="voverlay-email-row">
           <input class="voverlay-email" id="vote-email" type="email"
-            placeholder="your.name@taejae.ac.kr" autocomplete="email">
+            placeholder="your_id@taejae.ac.kr" autocomplete="email">
           <button class="voverlay-submit" id="vote-submit-btn"
             onclick="submitCommunityVote('${activeSem.id}')">
             ${alreadyVoted ? 'Update my vote' : 'Cast your vote'}
           </button>
         </div>
         <div class="voverlay-hint">
-          Your vote is anonymous · One vote per Taejae community member
+          Your email is used only to ensure one vote per member — it is never linked to your selection or shared. Voting is fully anonymous.
         </div>
       </div>
     </div>`;
