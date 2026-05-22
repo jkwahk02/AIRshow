@@ -58,9 +58,8 @@ function playVideo(url) {
 
   let embedHtml = '';
   if (ytId) {
-    embedHtml = `<iframe src="https://www.youtube.com/embed/${ytId}?autoplay=1"
-      style="width:100%;height:100%;border:none;"
-      allow="autoplay; fullscreen"></iframe>`;
+    window.open(`https://www.youtube.com/watch?v=${ytId}`, '_blank');
+    return;
   } else if (gdId) {
     embedHtml = `<iframe src="https://drive.google.com/file/d/${gdId}/preview"
       style="width:100%;height:100%;border:none;"
@@ -2121,7 +2120,7 @@ function renderGallery() {
                   </div>
                 </div>
               </div>`;
-            if (gdId) return `<iframe src="https://drive.google.com/file/d/${gdId}/preview" style="width:100%;height:100%;border:none;pointer-events:none;" allowfullscreen></iframe>`;
+            if (gdId) return `<div style="position:relative;width:100%;height:100%;cursor:pointer;background:#1a1a2e;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;" onclick="event.stopPropagation();window.open('https://drive.google.com/file/d/${gdId}/view','_blank')"><div style="width:36px;height:36px;background:rgba(255,255,255,.12);border-radius:50%;display:flex;align-items:center;justify-content:center;"><div style="width:0;height:0;border-top:8px solid transparent;border-bottom:8px solid transparent;border-left:14px solid #fff;margin-left:3px;"></div></div><div style="font-size:9px;color:rgba(255,255,255,.4);letter-spacing:.05em;">Google Drive</div></div>`;
             return `<div class="pthumb-tint" style="background:${p.card_color || '#e8f4f8'}"></div>
                     <div class="pthumb-play">AIR</div>
                     <div class="pthumb-label">Video can be added later</div>`;
