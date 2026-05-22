@@ -714,10 +714,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);font
   color:var(--txt);cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;}
 .vote-banner-change:hover{background:var(--ab);}
 @media(max-width:540px){
-  .vote-banner-idle,.vote-banner-voted{flex-direction:column;align-items:stretch;gap:14px;padding:18px 20px;}
+  .vote-banner-idle,.vote-banner-voted{flex-direction:column;align-items:stretch;gap:10px;padding:14px 16px;}
   .vote-banner-btn,.vote-banner-change{width:100%;text-align:center;}
 }
-
 /* ── VOTE BANNER voting 상태 폼 ── */
 .vote-banner-email{flex:1;padding:11px 14px;border:1px solid var(--b);
   border-radius:10px;font-family:'DM Sans',sans-serif;font-size:.95rem;
@@ -731,6 +730,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);font
 @media(max-width:540px){
   .vote-banner-email{width:100%;}
   .vote-banner-submit{width:100%;text-align:center;}
+  .vb-form-row{flex-direction:column;gap:8px;}
 }
 
 /* ── GALLERY 확장 애니메이션 ── */
@@ -1259,7 +1259,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);font
           <button onclick="cancelVotingMode()" style="background:none; border:none; cursor:pointer; color:var(--m); font-size:1.4rem; line-height:1; flex-shrink:0; padding:4px; opacity:.7;" title="Cancel">✕</button>
         </div>
         <!-- 하단: 이메일 + submit -->
-        <div style="display:flex; gap:12px; align-items:center;">
+        <div class="vb-form-row" style="display:flex; gap:12px; align-items:center;">
           <input class="vote-banner-email" id="vb-email" type="email" placeholder="your_id@taejae.ac.kr" autocomplete="email" oninput="vbCheckReady()">
           <button class="vote-banner-submit" id="vb-submit-btn" disabled onclick="vbSubmit()">Submit vote</button>
         </div>
