@@ -2128,7 +2128,10 @@ function renderGallery() {
         </div>
         <div class="pbody">
           <div class="pname">${escapeHtml(p.title)}</div>
-          <div class="pteam">${p.member_names?.length ? p.member_names.join(', ') : escapeHtml(p.team_name||'')}</div>
+          <div class="pteam">
+            <span class="psup-label">Team Members</span>
+            ${p.member_names?.length ? p.member_names.join(', ') : escapeHtml(p.team_name||'')}
+          </div>
           <div class="psup">${p.supervisor_names?.length ? 
             '<span class="psup-label">Supervisor</span>'+p.supervisor_names.map(n=>escapeHtml(n)).join(', ') : 
             p.supervisor_email ? '<span class="psup-label">Supervisor</span>'+escapeHtml(p.supervisor_email) : ''}</div>
