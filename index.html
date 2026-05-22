@@ -105,21 +105,51 @@ function embedVideoPreview(wrapSelector, url) {
   const wrap = document.querySelector(wrapSelector);
   if (!wrap) return;
 
-  let src = '';
-  if (ytId) src = `https://www.youtube.com/embed/${ytId}?autoplay=0`;
-  else if (gdId) src = `https://drive.google.com/file/d/${gdId}/preview`;
-  else if (odUrl) src = odUrl;
-  else return; // mp4는 thumbnail 없으므로 스킵
+  // YouTube — iframe 대신 썸네일 이미지로 표시
+  if (ytId) {
+    const player = document.createElement('div');
+    player.style.cssText = 'position:relative;width:100%;aspect-ratio:16/9;background:#000;border-radius:16px;overflow:hidden;cursor:pointer;';
+    player.innerHTML = `
+      <img src="https://img.youtube.com/vi/${ytId}/maxresdefault.jpg"
+        onerror="this.src='https://img.youtube.com/vi/${ytId}/mqdefault.jpg'"
+        style="width:100%;height:100%;object-fit:cover;" alt="">
+      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
+        <div style="width:64px;height:64px;background:rgba(0,0,0,.55);border-radius:50%;display:flex;align-items:center;justify-content:center;">
+          <div style="width:0;height:0;border-top:14px solid transparent;border-bottom:14px solid transparent;border-left:24px solid #fff;margin-left:5px;"></div>
+        </div>
+      </div>`;
+    player.onclick = () => playVideo(url);
+    wrap._originalContent = wrap.innerHTML;
+    wrap.innerHTML = '';
+    wrap.appendChild(player);
+    return;
+  }
 
-  const player = document.createElement('div');
-  player.style.cssText = 'position:relative;width:100%;aspect-ratio:16/9;background:#000;border-radius:16px;overflow:hidden;';
-  player.innerHTML = `<iframe src="${src}"
-    style="width:100%;height:100%;border:none;"
-    allow="autoplay; fullscreen"></iframe>`;
+  // Google Drive — 새 탭으로 열기
+  if (gdId) {
+    const player = document.createElement('div');
+    player.style.cssText = 'position:relative;width:100%;aspect-ratio:16/9;background:#1a1a2e;border-radius:16px;overflow:hidden;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;';
+    player.innerHTML = `
+      <div style="width:64px;height:64px;background:rgba(255,255,255,.12);border-radius:50%;display:flex;align-items:center;justify-content:center;">
+        <div style="width:0;height:0;border-top:14px solid transparent;border-bottom:14px solid transparent;border-left:24px solid #fff;margin-left:5px;"></div>
+      </div>
+      <div style="font-size:12px;color:rgba(255,255,255,.45);letter-spacing:.05em;">Google Drive · Click to open</div>`;
+    player.onclick = () => window.open(`https://drive.google.com/file/d/${gdId}/view`, '_blank');
+    wrap._originalContent = wrap.innerHTML;
+    wrap.innerHTML = '';
+    wrap.appendChild(player);
+    return;
+  }
 
-  wrap._originalContent = wrap.innerHTML;
-  wrap.innerHTML = '';
-  wrap.appendChild(player);
+  // OneDrive — iframe 유지
+  if (odUrl) {
+    const player = document.createElement('div');
+    player.style.cssText = 'position:relative;width:100%;aspect-ratio:16/9;background:#000;border-radius:16px;overflow:hidden;';
+    player.innerHTML = `<iframe src="${odUrl}" style="width:100%;height:100%;border:none;" allow="autoplay; fullscreen"></iframe>`;
+    wrap._originalContent = wrap.innerHTML;
+    wrap.innerHTML = '';
+    wrap.appendChild(player);
+  }
 }
   
 // ── VOTER TOKEN (anonymous voting, 30-day cookie) ──
