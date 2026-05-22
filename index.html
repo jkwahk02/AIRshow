@@ -662,94 +662,99 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);font
 .add-empty-card .plus{font-size:2rem;color:rgba(26,26,46,.2);}
 .adm .add-empty-card{display:flex;}
 
-/* ── VOTE BANNER ── */
-.vote-banner{background:var(--card);border:1.5px solid rgba(230,52,98,.25);
-  border-radius:16px;padding:24px 28px;display:flex;align-items:center;
-  justify-content:space-between;gap:24px;margin:0 0 1.5rem;}
-.vote-banner-icon{width:52px;height:52px;border-radius:50%;
+/* ── VOTE BANNER idle / voted ── */
+.vote-banner-idle{background:var(--card);border:1.5px solid rgba(230,52,98,.25);
+  border-radius:16px;padding:20px 24px;display:flex;align-items:center;
+  justify-content:space-between;gap:20px;}
+.vote-banner-icon{width:46px;height:46px;border-radius:50%;
   background:rgba(230,52,98,.08);border:1.5px solid rgba(230,52,98,.2);
-  display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.4rem;}
-.vote-banner-title{font-size:clamp(1.1rem,1.5vw,1.3rem);font-weight:600;color:var(--txt);margin-bottom:4px;}
-.vote-banner-sub{font-size:1rem;color:var(--m);line-height:1.6;}
-.vote-banner-btn{flex-shrink:0;padding:12px 26px;background:var(--a);color:#fff;
-  border:none;border-radius:12px;font-size:1rem;font-weight:600;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.3rem;}
+.vote-banner-title{font-size:clamp(1rem,1.4vw,1.15rem);font-weight:600;
+  color:var(--txt);margin-bottom:4px;}
+.vote-banner-sub{font-size:.9rem;color:var(--m);line-height:1.6;}
+.vote-banner-btn{flex-shrink:0;padding:11px 22px;background:var(--a);color:#fff;
+  border:none;border-radius:12px;font-size:.95rem;font-weight:600;
   cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;}
-@media (max-width: 540px) {
-  .vote-banner {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 14px;
-    padding: 18px 20px;
-  }
-
-  .vote-banner-icon {
-    align-self: flex-start;
-  }
-
-  .vote-banner-btn {
-    width: 100%;
-    text-align: center;
-  }
+.vote-banner-voted{background:var(--card);border:1.5px solid rgba(39,174,96,.3);
+  border-radius:16px;padding:18px 24px;display:none;align-items:center;gap:16px;}
+.vote-banner-voted-icon{width:38px;height:38px;border-radius:50%;
+  background:rgba(39,174,96,.1);display:flex;align-items:center;
+  justify-content:center;flex-shrink:0;font-size:1.1rem;}
+.vote-banner-voted-title{font-size:1rem;font-weight:600;color:#1e8449;margin-bottom:2px;}
+.vote-banner-voted-sub{font-size:.85rem;color:var(--m);}
+.vote-banner-change{flex-shrink:0;padding:8px 16px;background:transparent;
+  border:1px solid var(--b2);border-radius:10px;font-size:.85rem;font-weight:500;
+  color:var(--txt);cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;}
+.vote-banner-change:hover{background:var(--ab);}
+@media(max-width:540px){
+  .vote-banner-idle,.vote-banner-voted{flex-direction:column;align-items:stretch;gap:14px;padding:18px 20px;}
+  .vote-banner-btn,.vote-banner-change{width:100%;text-align:center;}
 }
 
-/* ── VOTE BANNER (idle → voting → voted 3-state) ── */
-.vote-banner { background:var(--card); border:1.5px solid rgba(230,52,98,.25);
-  border-radius:16px; padding:24px 28px; display:flex; align-items:center;
-  justify-content:space-between; gap:24px; margin:0 0 1.5rem; }
-.vote-banner.voting-active { border-color:rgba(230,52,98,.5);
-  background:rgba(230,52,98,.03); }
-.vote-banner-icon { width:52px; height:52px; border-radius:50%;
-  background:rgba(230,52,98,.08); border:1.5px solid rgba(230,52,98,.2);
-  display:flex; align-items:center; justify-content:center;
-  flex-shrink:0; font-size:1.4rem; }
-.vote-banner-title { font-size:clamp(1.1rem,1.5vw,1.3rem); font-weight:600;
-  color:var(--txt); margin-bottom:4px; }
-.vote-banner-sub { font-size:1rem; color:var(--m); line-height:1.6; }
-.vote-banner-btn { flex-shrink:0; padding:12px 26px; background:var(--a);
-  color:#fff; border:none; border-radius:12px; font-size:1rem; font-weight:600;
-  cursor:pointer; font-family:'DM Sans',sans-serif; white-space:nowrap; }
+/* ── VOTE FRAME OVERLAY ── */
+.vframe-dim{position:fixed;inset:0;background:rgba(26,26,46,.42);z-index:200;display:none;}
+.vframe-wrap{position:absolute;left:0;right:0;z-index:201;display:none;}
+.vframe-inner{margin:0 28px;background:var(--card);border:2px solid var(--a);
+  border-radius:16px;overflow:hidden;box-shadow:0 8px 32px rgba(230,52,98,.12);}
+.vframe-hdr{padding:14px 18px;border-bottom:1px solid var(--b);
+  display:flex;align-items:flex-start;gap:12px;}
+.vframe-hicon{width:36px;height:36px;border-radius:50%;
+  background:rgba(230,52,98,.08);border:1px solid rgba(230,52,98,.2);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.1rem;}
+.vframe-htitle{font-size:.95rem;font-weight:600;color:var(--a);
+  margin-bottom:3px;display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
+.vframe-hsub{font-size:.82rem;color:var(--m);line-height:1.5;}
+.vframe-sel-pill{display:inline-flex;align-items:center;gap:5px;font-size:.75rem;
+  font-weight:500;color:var(--a);background:rgba(230,52,98,.07);
+  border:1px solid rgba(230,52,98,.2);border-radius:20px;padding:1px 9px;}
+.vframe-sel-dot{width:5px;height:5px;border-radius:50%;background:var(--a);}
+.vframe-close{background:none;border:none;cursor:pointer;color:var(--m);
+  font-size:1.2rem;line-height:1;padding:0;flex-shrink:0;}
+.vframe-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:9px;padding:14px 18px;}
+.vov-card{border:1.5px solid var(--b);border-radius:10px;overflow:hidden;
+  cursor:pointer;transition:border-color .15s;position:relative;}
+.vov-card:hover{border-color:rgba(230,52,98,.4);}
+.vov-card.selected{border-color:var(--a);box-shadow:0 0 0 3px rgba(230,52,98,.1);}
+.vov-thumb{width:100%;aspect-ratio:16/9;background:#1a1a2e;position:relative;
+  overflow:hidden;}
+.vov-tint{position:absolute;inset:0;opacity:.25;}
+.vov-check{position:absolute;top:5px;right:5px;width:18px;height:18px;
+  background:var(--a);border-radius:50%;display:none;align-items:center;
+  justify-content:center;color:#fff;font-size:10px;font-weight:700;}
+.vov-card.selected .vov-check{display:flex;}
+.vov-body{padding:8px 10px 6px;}
+.vov-name{font-size:.8rem;font-weight:600;color:var(--txt);line-height:1.3;margin-bottom:2px;}
+.vov-team{font-size:.72rem;color:var(--m);}
+.vov-pick{display:block;width:calc(100% - 12px);margin:0 6px 7px;padding:5px 0;
+  background:var(--card);border:1px solid var(--b2);border-radius:8px;
+  font-size:.75rem;font-weight:500;color:var(--txt);cursor:pointer;
+  text-align:center;font-family:'DM Sans',sans-serif;transition:background .12s;}
+.vov-pick:hover{background:var(--ab);}
+.vov-card.selected .vov-pick{background:rgba(230,52,98,.07);
+  border-color:rgba(230,52,98,.35);color:var(--a);}
+.vframe-footer{padding:12px 18px 16px;border-top:1px solid var(--b);}
+.vframe-form{display:flex;gap:10px;align-items:center;margin-bottom:7px;}
+.vframe-email{flex:1;padding:10px 13px;border:1px solid var(--b);
+  border-radius:9px;font-family:'DM Sans',sans-serif;font-size:.9rem;
+  background:var(--bg);color:var(--txt);outline:none;}
+.vframe-email:focus{border-color:var(--a);}
+.vframe-submit{padding:10px 22px;background:var(--a);color:#fff;border:none;
+  border-radius:9px;font-size:.9rem;font-weight:600;cursor:pointer;
+  font-family:'DM Sans',sans-serif;white-space:nowrap;}
+.vframe-submit:disabled{opacity:.4;cursor:not-allowed;}
+.vframe-hint{font-size:.75rem;color:var(--m);line-height:1.5;}
+@media(max-width:640px){
+  .vframe-inner{margin:0 12px;}
+  .vframe-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:12px 14px;}
+  .vframe-hdr{padding:12px 14px;}
+  .vframe-footer{padding:10px 14px 14px;}
+  .vframe-form{flex-direction:column;align-items:stretch;}
+  .vframe-submit{width:100%;text-align:center;}
+}
 
-/* voting 상태 배너 */
-.vote-banner-voting-title { font-size:1rem; font-weight:600;
-  color:var(--a); margin-bottom:6px; display:flex; align-items:center;
-  gap:8px; flex-wrap:wrap; }
-.vote-sel-pill { display:inline-flex; align-items:center; gap:5px;
-  font-size:.82rem; font-weight:500; color:var(--a);
-  background:rgba(230,52,98,.07); border:1px solid rgba(230,52,98,.2);
-  border-radius:20px; padding:2px 10px; }
-.vote-sel-dot { width:6px; height:6px; border-radius:50%; background:var(--a); }
-.vote-banner-form { display:flex; gap:10px; align-items:center; }
-.vote-banner-email { flex:1; padding:10px 13px; border:1px solid var(--b);
-  border-radius:9px; font-family:'DM Sans',sans-serif; font-size:.9rem;
-  background:var(--bg); color:var(--txt); outline:none; }
-.vote-banner-email:focus { border-color:var(--a); }
-.vote-banner-submit { padding:10px 22px; background:var(--a); color:#fff;
-  border:none; border-radius:9px; font-size:.9rem; font-weight:600;
-  cursor:pointer; font-family:'DM Sans',sans-serif; white-space:nowrap; }
-.vote-banner-submit:disabled { opacity:.4; cursor:not-allowed; }
-.vote-banner-cancel { background:none; border:none; cursor:pointer;
-  color:var(--m); font-size:1.3rem; line-height:1; padding:0; flex-shrink:0; }
-
-/* voted 상태 배너 */
-.vote-banner-voted { background:rgba(39,174,96,.06);
-  border-color:rgba(39,174,96,.3) !important; }
-.vote-banner-voted-icon { width:38px; height:38px; border-radius:50%;
-  background:rgba(39,174,96,.12); display:flex; align-items:center;
-  justify-content:center; flex-shrink:0; font-size:1.1rem; }
-.vote-banner-voted-title { font-size:1rem; font-weight:600;
-  color:#1e8449; margin-bottom:3px; }
-.vote-banner-voted-sub { font-size:.88rem; color:var(--m); line-height:1.5; }
-.vote-banner-change { flex-shrink:0; padding:9px 18px; background:transparent;
-  border:1px solid var(--b2); border-radius:10px; font-size:.88rem;
-  font-weight:500; color:var(--txt); cursor:pointer;
-  font-family:'DM Sans',sans-serif; white-space:nowrap; }
-.vote-banner-change:hover { background:var(--ab); }
-
-/* 모바일 배너 */
-@media(max-width:540px) {
-  .vote-banner { flex-direction:column; align-items:stretch; gap:14px; padding:18px 20px; }
-  .vote-banner-btn, .vote-banner-submit, .vote-banner-change { width:100%; text-align:center; }
-  .vote-banner-form { flex-direction:column; }
+@media(max-width:400px){
+  .vframe-grid{grid-template-columns:1fr;}
 }
 
 /* ── 갤러리 카드 투표 오버레이 버튼 ── */
@@ -1222,11 +1227,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);font
       <div id="ggrid" class="ggrid">
         <div style="grid-column:1/-1;padding:2rem;text-align:center;color:var(--m);font-size:.95rem;">Loading projects…</div>
       </div>
-      <!-- VOTE BANNER — 3 states: idle / voting / voted -->
-      <div id="vote-banner-wrap" style="display:none; margin-top:1.5rem;">
+      <!-- VOTE BANNER -->
+      <div id="vote-banner-wrap" style="display:none; margin-top:1.5rem; position:relative;">
       
         <!-- idle -->
-        <div id="vb-idle" class="vote-banner">
+        <div id="vb-idle" class="vote-banner-idle">
           <div class="vote-banner-icon">🏆</div>
           <div style="flex:1; min-width:0;">
             <div class="vote-banner-title">Which project deserves the Outstanding Presentation Award?</div>
@@ -1236,35 +1241,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);font
           <button class="vote-banner-btn" onclick="enterVotingMode()">Cast your vote</button>
         </div>
       
-        <!-- voting -->
-        <div id="vb-voting" class="vote-banner voting-active" style="display:none;">
-          <div class="vote-banner-icon">🏆</div>
-          <div style="flex:1; min-width:0;">
-            <div class="vote-banner-voting-title">
-              Select a project above
-              <span class="vote-sel-pill" id="vb-sel-pill" style="display:none;">
-                <span class="vote-sel-dot"></span>
-                <span id="vb-sel-name"></span>
-              </span>
-            </div>
-            <div class="vote-banner-form">
-              <input class="vote-banner-email" id="vb-email" type="email"
-                placeholder="your_id@taejae.ac.kr" autocomplete="email"
-                oninput="vbCheckReady()">
-              <button class="vote-banner-submit" id="vb-submit-btn"
-                disabled onclick="vbSubmit()">Submit vote</button>
-            </div>
-            <!-- ✅ 추가 -->
-            <div style="font-size:.78rem;color:var(--m);margin-top:6px;line-height:1.5;">
-              Your email is converted to a one-way hash before saving —
-              the original address is never stored. Voting is fully anonymous.
-            </div>
-          </div>
-          <button class="vote-banner-cancel" onclick="cancelVotingMode()" title="Cancel">✕</button>
-        </div>
-      
         <!-- voted -->
-        <div id="vb-voted" class="vote-banner vote-banner-voted" style="display:none;">
+        <div id="vb-voted" class="vote-banner-voted">
           <div class="vote-banner-voted-icon">✓</div>
           <div style="flex:1; min-width:0;">
             <div class="vote-banner-voted-title">Vote recorded</div>
@@ -1273,6 +1251,43 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);font
           <button class="vote-banner-change" onclick="enterVotingMode()">Change my vote</button>
         </div>
       
+      </div>
+      
+      <!-- dim + vote frame (갤러리 위 오버레이) -->
+      <div class="vframe-dim" id="vframe-dim"></div>
+      <div class="vframe-wrap" id="vframe-wrap">
+        <div class="vframe-inner">
+      
+          <div class="vframe-hdr">
+            <div class="vframe-hicon">🏆</div>
+            <div style="flex:1; min-width:0;">
+              <div class="vframe-htitle">
+                Select a project above
+                <span class="vframe-sel-pill" id="vframe-sel-pill" style="display:none;">
+                  <span class="vframe-sel-dot"></span>
+                  <span id="vframe-sel-name"></span>
+                </span>
+              </div>
+              <div class="vframe-hsub">Cast your vote for the project that impressed you most.
+                Open to the entire Taejae community — one vote per member.</div>
+            </div>
+            <button class="vframe-close" onclick="cancelVotingMode()" title="Cancel">✕</button>
+          </div>
+      
+          <div class="vframe-grid" id="vframe-grid"></div>
+      
+          <div class="vframe-footer">
+            <div class="vframe-form">
+              <input class="vframe-email" id="vb-email" type="email"
+                placeholder="your_id@taejae.ac.kr" autocomplete="email"
+                oninput="vbCheckReady()">
+              <button class="vframe-submit" id="vb-submit-btn" disabled onclick="vbSubmit()">Submit vote</button>
+            </div>
+            <div class="vframe-hint">🔒 Your email is converted to a one-way hash before saving —
+              the original address is never stored. Voting is fully anonymous.</div>
+          </div>
+      
+        </div>
       </div>
     </div>
     <!-- LEADERBOARD -->
@@ -2222,6 +2237,9 @@ async function loadMyVotes(semId) {
 let vbActiveSemId = null;
 let vbSelectedCard = null;
 
+let vbActiveSemId = null;
+let vbSelectedCard = null;
+
 async function enterVotingMode() {
   const activeSem = appData.semesters.find(s => s.status === 'active');
   if (!activeSem) return;
@@ -2231,51 +2249,60 @@ async function enterVotingMode() {
   await loadMyVotes(activeSem.id);
   const alreadyVotedId = appData.communityVotes[0] || null;
 
-  // 갤러리 카드에 voting-mode 클래스 + 오버레이 버튼 부착
-  document.querySelectorAll('#ggrid .pcard').forEach(card => {
-    card.classList.add('voting-mode');
-    card.classList.remove('vov-selected');
-    // 이미 첨부된 버튼 중복 방지
-    if (!card.querySelector('.pcard-vote-btn')) {
-      const btn = document.createElement('div');
-      btn.className = 'pcard-vote-btn';
-      btn.innerHTML = `<button class="pcard-vote-inner" onclick="vbPickCard(this.closest('.pcard'));event.stopPropagation()">Select</button>`;
-      card.appendChild(btn);
-    }
-    // vcheck 배지
-    if (!card.querySelector('.pcard-vcheck')) {
-      const vc = document.createElement('div');
-      vc.className = 'pcard-vcheck';
-      vc.textContent = '✓';
-      card.querySelector('.pthumb')?.appendChild(vc);
-    }
-    // 기존 투표 카드 미리 선택
-    if (alreadyVotedId && card.dataset.pid === alreadyVotedId) {
-      card.classList.add('vov-selected');
-      vbSelectedCard = card;
-    }
+  // vframe-grid에 카드 동적 렌더링
+  const grid = document.getElementById('vframe-grid');
+  grid.innerHTML = '';
+  const semProjects = appData.projects.filter(p => p.semester_id === activeSem.id);
+  semProjects.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'vov-card' + (p.id === alreadyVotedId ? ' selected' : '');
+    card.dataset.pid = p.id;
+    card.innerHTML = `
+      <div class="vov-thumb" style="background:#1a1a2e;">
+        <div class="vov-tint" style="background:${p.card_color || '#B5D4F4'};"></div>
+        <div class="vov-check">✓</div>
+      </div>
+      <div class="vov-body">
+        <div class="vov-name">${p.title}</div>
+        <div class="vov-team">${p.team_name || ''}</div>
+      </div>
+      <button class="vov-pick" onclick="vbPickCard(this.closest('.vov-card'));event.stopPropagation()">Select</button>`;
+    card.addEventListener('click', () => vbPickCard(card));
+    grid.appendChild(card);
+    if (p.id === alreadyVotedId) vbSelectedCard = card;
   });
 
-  vbShowState('voting');
+  // vframe를 Gallery sec-hdr 바로 아래에 위치
+  const secGallery = document.getElementById('sec-gallery');
+  const secHdr = secGallery.querySelector('.sec-hdr');
+  const wrap = document.getElementById('vframe-wrap');
+  const hdrBottom = secHdr.getBoundingClientRect().bottom;
+  const secTop = secGallery.getBoundingClientRect().top;
+  wrap.style.top = (hdrBottom - secTop + secGallery.scrollTop) + 'px';
+  wrap.style.position = 'absolute';
+
+  secGallery.style.position = 'relative';
+  document.getElementById('vframe-dim').style.display = 'block';
+  wrap.style.display = 'block';
+
   vbUpdateSelPill();
   document.getElementById('vb-email').value = '';
   vbCheckReady();
 }
 
 function cancelVotingMode() {
-  document.querySelectorAll('#ggrid .pcard').forEach(card => {
-    card.classList.remove('voting-mode', 'vov-selected');
-  });
+  document.getElementById('vframe-dim').style.display = 'none';
+  document.getElementById('vframe-wrap').style.display = 'none';
   vbSelectedCard = null;
   vbShowState(appData.communityVotes.length ? 'voted' : 'idle');
 }
 
 function vbPickCard(card) {
-  document.querySelectorAll('#ggrid .pcard').forEach(c => c.classList.remove('vov-selected'));
+  document.querySelectorAll('#vframe-grid .vov-card').forEach(c => c.classList.remove('selected'));
   if (vbSelectedCard === card) {
     vbSelectedCard = null;
   } else {
-    card.classList.add('vov-selected');
+    card.classList.add('selected');
     vbSelectedCard = card;
   }
   vbUpdateSelPill();
@@ -2283,8 +2310,8 @@ function vbPickCard(card) {
 }
 
 function vbUpdateSelPill() {
-  const pill = document.getElementById('vb-sel-pill');
-  const name = document.getElementById('vb-sel-name');
+  const pill = document.getElementById('vframe-sel-pill');
+  const name = document.getElementById('vframe-sel-name');
   if (vbSelectedCard) {
     const proj = appData.projects.find(p => p.id === vbSelectedCard.dataset.pid);
     name.textContent = proj?.title || '';
@@ -2352,9 +2379,8 @@ async function vbSubmit() {
 }
 
 function vbShowState(state) {
-  document.getElementById('vb-idle').style.display   = state === 'idle'   ? 'flex' : 'none';
-  document.getElementById('vb-voting').style.display = state === 'voting' ? 'flex' : 'none';
-  document.getElementById('vb-voted').style.display  = state === 'voted'  ? 'flex' : 'none';
+  document.getElementById('vb-idle').style.display  = state === 'idle'  ? 'flex' : 'none';
+  document.getElementById('vb-voted').style.display = state === 'voted' ? 'flex' : 'none';
 }
 
 // renderGallery()에서 bannerWrap 표시 시 초기 상태 설정 — 기존 코드에 1줄 추가
