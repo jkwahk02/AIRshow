@@ -689,6 +689,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);font
 @media(max-width:540px){
   .vote-banner-idle,.vote-banner-voted{flex-direction:column;align-items:stretch;gap:14px;padding:18px 20px;}
   .vote-banner-btn,.vote-banner-change{width:100%;text-align:center;}
+  #vb-voting{padding:18px 20px !important; gap:14px !important;}
+  #vb-voting > div:first-child{align-items:flex-start;}
+  #vb-voting .vote-banner-icon{width:40px !important;height:40px !important;font-size:1.1rem !important;}
+  #vb-voting > div:nth-child(2){flex-direction:column;gap:10px;}
+  .vote-banner-email{width:100%;}
+  .vote-banner-submit{width:100%;text-align:center;}
 }
 
 /* ── VOTE BANNER voting 상태 폼 ── */
@@ -701,10 +707,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);font
   cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;}
 .vote-banner-submit:disabled{opacity:.38;cursor:not-allowed;}
 .vote-banner-submit:not(:disabled):hover{opacity:.88;}
-@media(max-width:540px){
-  .vote-banner-email{width:100%;}
-  .vote-banner-submit{width:100%;text-align:center;}
-}
+
   
 /* ── GALLERY 확장 애니메이션 ── */
 #sec-gallery{
