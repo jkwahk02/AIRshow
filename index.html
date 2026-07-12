@@ -1176,7 +1176,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);font
   </div>
 
   <!-- ── VOTE PICKER MODAL ── -->
-  <div class="vmodal" id="vote-modal" onclick="if(event.target===this)closeVoteModal()">
+  <div class="vmodal" id="vote-modal">
     <div class="vmodal-box" role="dialog" aria-modal="true" aria-labelledby="vmodal-title">
       <div class="vmodal-hdr">
         <div class="vmodal-hdr-icon">🏆</div>
@@ -2442,10 +2442,7 @@ async function vmSubmit() {
   }
 }
 
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape' &&
-      document.getElementById('vote-modal')?.classList.contains('open')) closeVoteModal();
-});
+
 
 // renderGallery()에서 bannerWrap 표시 시 초기 상태 설정 — 기존 코드에 1줄 추가
 // 기존: bannerWrap.style.display = (activeSem && !isAdm) ? 'block' : 'none';
