@@ -1238,8 +1238,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);font
           <button class="vm-submit" id="vm-submit" disabled onclick="vmSubmit()">Vote</button>
         </div>
         <div class="vm-note" id="vm-email-note">
-          <span class="vm-note-icon">🔒</span>
-          <span id="vm-note-txt"><strong>Your email is never stored.</strong> It is converted to a one-way hash before saving, and used only to prevent double voting.</span>
+          <span class="vm-note-icon">🗳️</span>
+          <span id="vm-note-txt"><strong>One vote per Taejae member.</strong> Your email is how we tell everyone apart. Vote again and it simply moves your vote — it never adds a second one, so there is nothing to gain from trying.</span>
         </div>
       </div>
     </div>
@@ -2431,8 +2431,8 @@ async function openVoteModal() {
   emailInput.style.display = 'block';
   document.getElementById('vm-email-note').style.display = 'flex';
   document.getElementById('vm-note-txt').innerHTML = savedEmail
-    ? '<strong>Saved on this device.</strong> Your email is never stored on the server — only a one-way hash is. Change it here to vote as someone else.'
-    : '<strong>Your email is never stored.</strong> It is converted to a one-way hash before saving, and used only to prevent double voting.';
+    ? '<strong>Good to see you again.</strong> Your vote can move, but it cannot multiply — one vote per Taejae member, however many times you click. Sharing this computer? Just swap in your own email.'
+    : '<strong>One vote per Taejae member.</strong> Your email is how we tell everyone apart. Vote again and it simply moves your vote — it never adds a second one, so there is nothing to gain from trying.';
 
   const btn = document.getElementById('vm-submit');
   btn.textContent = 'Vote';
@@ -2478,6 +2478,7 @@ async function vmSubmit() {
       emailHash = localStorage.getItem('airshow_vote_email_hash');
       if (!emailHash) { showToast('Please enter your email address.'); return; }
     }
+    const voterEmail = email || localStorage.getItem('airshow_vote_email') || null;
 
     const h = sbAnonHeaders();
     // 같은 브라우저(토큰) / 같은 사람(이메일 해시)의 기존 표 제거 → 항상 1인 1표
@@ -2491,6 +2492,7 @@ async function vmSubmit() {
     await sbInsert(TBL_VOTES, {
       project_id:       vmSelectedId,
       voter_token:      VOTER_TOKEN,
+      voter_email:      voterEmail,
       voter_email_hash: emailHash,
       semester_id:      vmActiveSemId,
     });
