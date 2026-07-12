@@ -781,19 +781,19 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);font
 .vmodal{position:fixed;inset:0;z-index:900;display:none;align-items:center;justify-content:center;
   padding:24px;background:rgba(26,26,46,.55);}
 .vmodal.open{display:flex;}
-.vmodal-box{width:100%;max-width:660px;max-height:88vh;background:var(--card);border-radius:18px;
+.vmodal-box{width:100%;max-width:1040px;max-height:92vh;background:var(--card);border-radius:18px;
   display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 64px rgba(26,26,46,.25);}
-.vmodal-hdr{display:flex;align-items:flex-start;gap:14px;padding:20px 24px 14px;flex-shrink:0;}
+.vmodal-hdr{display:flex;align-items:flex-start;gap:16px;padding:26px 32px 18px;flex-shrink:0;}
 .vmodal-hdr-icon{width:44px;height:44px;border-radius:50%;background:rgba(230,52,98,.08);
   border:1.5px solid rgba(230,52,98,.2);display:flex;align-items:center;justify-content:center;
   font-size:1.25rem;flex-shrink:0;}
-.vmodal-title{font-size:1.1rem;font-weight:600;color:var(--txt);margin-bottom:3px;}
-.vmodal-sub{font-size:.88rem;color:var(--m);line-height:1.55;}
+.vmodal-title{font-size:1.3rem;font-weight:600;color:var(--txt);margin-bottom:3px;}
+.vmodal-sub{font-size:.95rem;color:var(--m);line-height:1.55;}
 .vmodal-x{background:none;border:none;cursor:pointer;color:var(--m);font-size:1.35rem;line-height:1;
   padding:4px;flex-shrink:0;opacity:.7;}
 .vmodal-x:hover{opacity:1;}
-.vmodal-body{flex:1;overflow-y:auto;padding:4px 24px 18px;}
-.vmgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
+.vmodal-body{flex:1;overflow-y:auto;padding:6px 32px 22px;}
+.vmgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;}
 .vmcard{border:1px solid var(--b);border-radius:12px;overflow:hidden;background:var(--bg);
   cursor:pointer;transition:border-color .12s,box-shadow .12s;}
 .vmcard:hover{border-color:var(--b2);}
@@ -803,17 +803,17 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);font
 .vmthumb img{width:100%;height:100%;object-fit:cover;}
 .vmthumb-air{font-family:'DM Serif Display',serif;font-size:.8rem;color:rgba(255,255,255,.45);
   letter-spacing:.06em;}
-.vmcheck{position:absolute;top:7px;right:7px;width:22px;height:22px;border-radius:50%;
+.vmcheck{position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:50%;
   background:var(--a);color:#fff;font-size:12px;font-weight:700;display:none;
   align-items:center;justify-content:center;}
 .vmcard.sel .vmcheck{display:flex;}
-.vmbody{padding:10px 12px 12px;}
-.vmtitle{font-size:.92rem;font-weight:600;line-height:1.35;color:var(--txt);margin-bottom:4px;}
+.vmbody{padding:12px 14px 14px;}
+.vmtitle{font-size:1rem;font-weight:600;line-height:1.35;color:var(--txt);margin-bottom:4px;}
 .vmcard.sel .vmtitle{color:var(--a);}
-.vmteam{font-size:.8rem;color:var(--m);line-height:1.4;}
+.vmteam{font-size:.85rem;color:var(--m);line-height:1.4;}
 .vmtags{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px;}
 .vmtag{font-size:.68rem;padding:2px 7px;border-radius:20px;background:var(--ab);color:var(--m);}
-.vmodal-foot{flex-shrink:0;border-top:1px solid var(--b);padding:14px 24px 16px;background:var(--card);}
+.vmodal-foot{flex-shrink:0;border-top:1px solid var(--b);padding:18px 32px 20px;background:var(--card);}
 .vm-email-row{display:flex;gap:10px;align-items:center;}
 .vm-email-row input{flex:1;min-width:0;padding:11px 14px;border:1px solid var(--b);border-radius:10px;
   font-family:'DM Sans',sans-serif;font-size:.95rem;background:var(--bg);color:var(--txt);outline:none;}
@@ -1190,7 +1190,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);font
         </div>
         <div class="vm-note" id="vm-email-note">
           <span>🔒</span>
-          <span>Your email is hashed before saving — the original address is never stored. It is used only to prevent double voting.</span>
+          <span id="vm-note-txt">Your email is hashed before saving — the original address is never stored. It is used only to prevent double voting.</span>
         </div>
       </div>
     </div>
@@ -2162,7 +2162,7 @@ function renderGallery() {
             const ytId = getYouTubeId(p.video_url || '');
             const gdId = getGoogleDriveId(p.video_url || '');
             if (ytId) return `
-              <div style="position:relative;width:100%;height:100%;cursor:pointer;" onclick="event.stopPropagation();playInline(this,'${p.video_url}')">
+              <div style="position:absolute;inset:0;cursor:pointer;" onclick="event.stopPropagation();playInline(this,'${p.video_url}')">
                 <img src="https://img.youtube.com/vi/${ytId}/mqdefault.jpg"
                   style="width:100%;height:100%;object-fit:cover;" alt="">
                 <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
@@ -2172,7 +2172,7 @@ function renderGallery() {
                 </div>
               </div>`;
             if (gdId) return `
-              <div style="position:relative;width:100%;height:100%;cursor:pointer;background:#1a1a2e;"
+              <div style="position:absolute;inset:0;cursor:pointer;background:#1a1a2e;"
                    onclick="event.stopPropagation();playInline(this,'${p.video_url}')">
                 <img src="${gdThumbUrl(gdId)}" referrerpolicy="no-referrer"
                   onerror="this.style.display='none'"
@@ -2342,11 +2342,16 @@ async function openVoteModal() {
     grid.appendChild(card);
   });
 
-  // 이미 투표한 적 있으면 이메일을 다시 묻지 않음 (저장된 해시 재사용)
-  const savedHash = localStorage.getItem('airshow_vote_email_hash');
-  document.getElementById('vm-email').style.display      = savedHash ? 'none' : 'block';
-  document.getElementById('vm-email-note').style.display = savedHash ? 'none' : 'flex';
-  document.getElementById('vm-email').value = '';
+  // 이전에 입력한 이메일이 있으면 채워서 보여줌 (이 브라우저에만 저장, DB에는 해시만 전송)
+  const savedEmail = localStorage.getItem('airshow_vote_email') || '';
+  const savedHash  = localStorage.getItem('airshow_vote_email_hash');
+  const emailInput = document.getElementById('vm-email');
+  emailInput.value = savedEmail;
+  emailInput.style.display = 'block';
+  document.getElementById('vm-email-note').style.display = 'flex';
+  document.getElementById('vm-note-txt').textContent = savedEmail
+    ? 'Saved on this device. Change it here if you want to vote as someone else.'
+    : 'Your email is hashed before saving — the original address is never stored. It is used only to prevent double voting.';
 
   const btn = document.getElementById('vm-submit');
   btn.textContent = 'Vote';
@@ -2371,7 +2376,7 @@ function vmPick(pid) {
 function vmCheckReady() {
   const savedHash = localStorage.getItem('airshow_vote_email_hash');
   const email = document.getElementById('vm-email').value.trim();
-  const emailOk = !!savedHash || (email.includes('@') && email.includes('.'));
+  const emailOk = (email.includes('@') && email.includes('.')) || (!email && !!savedHash);
   document.getElementById('vm-submit').disabled = !(vmSelectedId && emailOk);
 }
 
@@ -2382,11 +2387,15 @@ async function vmSubmit() {
   btn.textContent = 'Submitting…';
 
   try {
-    let emailHash = localStorage.getItem('airshow_vote_email_hash');
-    if (!emailHash) {
-      const email = document.getElementById('vm-email').value.trim();
+    const email = document.getElementById('vm-email').value.trim();
+    let emailHash;
+    if (email) {
       if (!email.includes('@')) { showToast('Please enter a valid email address.'); return; }
       emailHash = await hashEmail(email);
+      localStorage.setItem('airshow_vote_email', email);
+    } else {
+      emailHash = localStorage.getItem('airshow_vote_email_hash');
+      if (!emailHash) { showToast('Please enter your email address.'); return; }
     }
 
     const h = sbAnonHeaders();
