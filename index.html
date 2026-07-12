@@ -34,8 +34,36 @@ function getYouTubeId(url) {
 }
 
 function getGoogleDriveId(url) {
-  const m = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+  if (!url) return null;
+  let m = url.match(/\/file\/d\/([a-zA-Z0-9_-]{10,})/);
+  if (m) return m[1];
+  m = url.match(/[?&]id=([a-zA-Z0-9_-]{10,})/);
   return m ? m[1] : null;
+}
+
+// Google Drive — 프레임 내 재생용 embed URL / 썸네일 URL
+function gdEmbedUrl(id) { return `https://drive.google.com/file/d/${id}/preview`; }
+function gdThumbUrl(id) { return `https://drive.google.com/thumbnail?id=${id}&sz=w640`; }
+
+// 썸네일 컨테이너를 그 자리에서 iframe 플레이어로 교체 (새 탭 열지 않음)
+function playInline(el, url) {
+  if (!el || !url) return;
+  const ytId = getYouTubeId(url);
+  const gdId = getGoogleDriveId(url);
+  const odUrl = getOneDriveEmbedUrl(url);
+  let src = null;
+  if (gdId)       src = gdEmbedUrl(gdId);
+  else if (ytId)  src = `https://www.youtube.com/embed/${ytId}?autoplay=1&rel=0`;
+  else if (odUrl) src = odUrl;
+
+  if (src) {
+    el.innerHTML = `<iframe src="${src}" style="position:absolute;inset:0;width:100%;height:100%;border:none;"
+      allow="autoplay; fullscreen" allowfullscreen></iframe>`;
+  } else {
+    el.innerHTML = `<video src="${url}" controls autoplay playsinline
+      style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000;"></video>`;
+  }
+  el.style.cursor = 'default';
 }
 
 function getOneDriveEmbedUrl(url) {
@@ -58,12 +86,13 @@ function playVideo(url) {
 
   let embedHtml = '';
   if (ytId) {
-    window.open(`https://www.youtube.com/watch?v=${ytId}`, '_blank');
-    return;
-  } else if (gdId) {
-    embedHtml = `<iframe src="https://drive.google.com/file/d/${gdId}/preview"
+    embedHtml = `<iframe src="https://www.youtube.com/embed/${ytId}?autoplay=1&rel=0"
       style="width:100%;height:100%;border:none;"
-      allow="autoplay; fullscreen"></iframe>`;
+      allow="autoplay; fullscreen" allowfullscreen></iframe>`;
+  } else if (gdId) {
+    embedHtml = `<iframe src="${gdEmbedUrl(gdId)}"
+      style="width:100%;height:100%;border:none;"
+      allow="autoplay; fullscreen" allowfullscreen></iframe>`;
   } else if (odUrl) {
     embedHtml = `<iframe src="${odUrl}"
       style="width:100%;height:100%;border:none;"
@@ -124,14 +153,12 @@ function embedVideoPreview(wrapSelector, url) {
   }
 
   if (gdId) {
+    // Google Drive — 프레임 안에서 바로 재생
     const player = document.createElement('div');
-    player.style.cssText = 'position:relative;width:100%;aspect-ratio:16/9;background:#1a1a2e;border-radius:16px;overflow:hidden;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;';
-    player.innerHTML = `
-      <div style="width:64px;height:64px;background:rgba(255,255,255,.12);border-radius:50%;display:flex;align-items:center;justify-content:center;">
-        <div style="width:0;height:0;border-top:14px solid transparent;border-bottom:14px solid transparent;border-left:24px solid #fff;margin-left:5px;"></div>
-      </div>
-      <div style="font-size:12px;color:rgba(255,255,255,.45);letter-spacing:.05em;">Google Drive · Click to open</div>`;
-    player.onclick = () => window.open(`https://drive.google.com/file/d/${gdId}/view`, '_blank');
+    player.style.cssText = 'position:relative;width:100%;aspect-ratio:16/9;background:#000;border-radius:16px;overflow:hidden;';
+    player.innerHTML = `<iframe src="${gdEmbedUrl(gdId)}"
+      style="position:absolute;inset:0;width:100%;height:100%;border:none;"
+      allow="autoplay; fullscreen" allowfullscreen></iframe>`;
     wrap._originalContent = wrap.innerHTML;
     wrap.innerHTML = '';
     wrap.appendChild(player);
@@ -310,7 +337,8 @@ let appData = {
   semesters: [],
   projects:  [],
   draftProjects: [],  // ← 추가
-  votes:        {},  // admin용 집계 (project_id: count)
+  votes:        {},  // 집계 (project_id: count) — 현재 학기
+  votesAllCount: 0,  // 전체 학기 누적 투표 수
   myVotes:      [],  // 삭제 — 사용 안 함
   communityVotes: [], // 이번 세션에서 투표한 project_id 목록 (voter_token으로 로드)
   awards:    [],
@@ -348,6 +376,22 @@ async function loadAll() {
 
     const allProjects = await sbGet(TBL_PROJECTS, 'select=id');
     document.getElementById('stat-all').textContent = allProjects.length;
+
+    // ── 투표 데이터 로드 ──
+    const allVotes = await sbGet(TBL_VOTES, 'select=project_id,semester_id');
+    appData.votesAllCount = allVotes.length;
+    appData.votes = {};
+    allVotes.forEach(v => {
+      if (!activeSem || v.semester_id === activeSem.id) {
+        appData.votes[v.project_id] = (appData.votes[v.project_id] || 0) + 1;
+      }
+    });
+    // 내가 이번 학기에 투표했는지 확인 (voter_token / email hash 기준)
+    if (activeSem) {
+      try { await loadMyVotes(activeSem.id); } catch (e) { appData.communityVotes = []; }
+    } else {
+      appData.communityVotes = [];
+    }
 
     renderGallery();
     renderLB();
@@ -481,7 +525,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);font
 .about-trigger:hover{color:var(--txt);}
 .about-trigger .arr{transition:transform .28s;display:inline-block;}
 .about-trigger.open .arr{transform:rotate(180deg);}
-.hstats{display:flex;flex-direction:column;gap:12px;min-width:clamp(140px,18vw,200px);}
+.hstats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;min-width:clamp(280px,32vw,400px);align-content:start;}
 .sc{background:var(--card);border:1px solid var(--b);border-radius:12px;padding:clamp(10px,1.5vw,16px) clamp(14px,2vw,20px);text-align:right;}
 .sl{font-size:.75rem;color:var(--m);margin-bottom:4px;line-height:1.3;}
 .sn{font-size:clamp(1.4rem,2.5vw,2rem);font-weight:500;letter-spacing:-.02em;}
@@ -1025,8 +1069,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);font
 /* ── RESPONSIVE ── */
 @media(max-width:700px){
   .hero{grid-template-columns:1fr;gap:2rem;}
-  .hstats{flex-direction:row;flex-wrap:wrap;min-width:0;}
-  .sc{flex:1;min-width:130px;}
+  .hstats{grid-template-columns:repeat(2,minmax(0,1fr));min-width:0;}
+  .sc{min-width:0;}
   .award-card{grid-template-columns:1fr;}
   .cv-slot,.edit-slot{grid-template-columns:1fr;}
   .arc-list-row{grid-template-columns:34px 1fr;}
@@ -1161,6 +1205,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);font
         <div class="hstats">
           <div class="sc"><div class="sl">Projects / Current semester</div><div class="sn" id="stat-cur">—</div></div>
           <div class="sc"><div class="sl">Projects / All semesters</div><div class="sn" id="stat-all">—</div></div>
+          <div class="sc"><div class="sl">Votes cast / Current semester</div><div class="sn ac" id="stat-votes-cur">—</div></div>
           <div class="sc"><div class="sl">Votes cast / All semesters</div><div class="sn ac" id="stat-votes">—</div></div>
         </div>
       </div>
@@ -1238,10 +1283,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);font
           </div>
           <button class="vote-banner-change" onclick="enterVotingMode()">Change my vote</button>
         </div>
-      
-      </div>
-      
-      <!-- voting 상태 배너 -->
+
+        <!-- voting 상태 배너 -->
       <div id="vb-voting" class="vote-banner-idle" style="display:none; flex-direction:column; gap:16px; border-color:rgba(230,52,98,.45); background:rgba(230,52,98,.03); padding:22px 28px;">
         <!-- 상단: 아이콘 + 텍스트 + X -->
         <div style="display:flex; align-items:center; gap:16px;">
@@ -1264,7 +1307,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);font
           <button class="vote-banner-submit" id="vb-submit-btn" disabled onclick="vbSubmit()">Submit vote</button>
         </div>
         <div style="font-size:.82rem; color:var(--m); line-height:1.6;">🔒 Your email is converted to a one-way hash before saving — the original address is never stored. Voting is fully anonymous.</div>
-      </div>
+        </div>
+      </div><!-- /vote-banner-wrap -->
     </div>
     <!-- LEADERBOARD -->
     <div class="sec" id="sec-leaderboard">
@@ -1366,24 +1410,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);font
         </div>
       </div>
   
-      <!-- VOTE BANNER -->
-      <div id="vote-banner-wrap" style="display:none;padding:0 var(--pad);">
-        <div class="vote-banner">
-          <div class="vote-banner-icon">🏆</div>
-          <div>
-            <div class="vote-banner-title">
-              Which project deserves the Outstanding Presentation Award?
-            </div>
-            <div class="vote-banner-sub">
-              Voted on by the <strong>entire Taejae community</strong>
-              · One vote per member · Results revealed at end of semester
-            </div>
-          </div>
-          <button class="vote-banner-btn" onclick="openVoteOverlay()">
-            Cast your vote
-          </button>
-        </div>
-      </div>
   
       <!-- Comments -->
       <div class="cmts-section">
@@ -2093,9 +2119,10 @@ function renderGallery() {
 
   document.getElementById('g-count-lbl').textContent = `${sorted.length} projects`;
   document.getElementById('stat-cur').textContent = appData.projects.length;
-  const totalVotes = Object.values(appData.votes).reduce((a, b) => a + b, 0);
-  const communityTotal = Object.values(appData.votes).reduce((a,b) => a+b, 0);
-  document.getElementById('stat-votes').textContent = communityTotal.toLocaleString();
+  const curVotes = Object.values(appData.votes).reduce((a, b) => a + b, 0);
+  document.getElementById('stat-votes-cur').textContent = curVotes.toLocaleString();
+  document.getElementById('stat-votes').textContent =
+    (appData.votesAllCount || 0).toLocaleString();
   document.getElementById('app').classList.toggle('adm', isAdm);
 
   if (galleryView === 'grid') {
@@ -2112,7 +2139,7 @@ function renderGallery() {
             const ytId = getYouTubeId(p.video_url || '');
             const gdId = getGoogleDriveId(p.video_url || '');
             if (ytId) return `
-              <div style="position:relative;width:100%;height:100%;cursor:pointer;" onclick="event.stopPropagation();playVideo('${p.video_url}')">
+              <div style="position:relative;width:100%;height:100%;cursor:pointer;" onclick="event.stopPropagation();playInline(this,'${p.video_url}')">
                 <img src="https://img.youtube.com/vi/${ytId}/mqdefault.jpg"
                   style="width:100%;height:100%;object-fit:cover;" alt="">
                 <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
@@ -2121,7 +2148,18 @@ function renderGallery() {
                   </div>
                 </div>
               </div>`;
-            if (gdId) return `<div style="position:relative;width:100%;height:100%;cursor:pointer;background:#1a1a2e;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;" onclick="event.stopPropagation();window.open('https://drive.google.com/file/d/${gdId}/view','_blank')"><div style="width:36px;height:36px;background:rgba(255,255,255,.12);border-radius:50%;display:flex;align-items:center;justify-content:center;"><div style="width:0;height:0;border-top:8px solid transparent;border-bottom:8px solid transparent;border-left:14px solid #fff;margin-left:3px;"></div></div><div style="font-size:9px;color:rgba(255,255,255,.4);letter-spacing:.05em;">Google Drive</div></div>`;
+            if (gdId) return `
+              <div style="position:relative;width:100%;height:100%;cursor:pointer;background:#1a1a2e;"
+                   onclick="event.stopPropagation();playInline(this,'${p.video_url}')">
+                <img src="${gdThumbUrl(gdId)}" referrerpolicy="no-referrer"
+                  onerror="this.style.display='none'"
+                  style="width:100%;height:100%;object-fit:cover;" alt="">
+                <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
+                  <div style="width:36px;height:36px;background:rgba(0,0,0,.55);border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                    <div style="width:0;height:0;border-top:8px solid transparent;border-bottom:8px solid transparent;border-left:14px solid #fff;margin-left:3px;"></div>
+                  </div>
+                </div>
+              </div>`;
             return `<div class="pthumb-tint" style="background:${p.card_color || '#e8f4f8'}"></div>
                     <div class="pthumb-play">AIR</div>
                     <div class="pthumb-label">Video can be added later</div>`;
@@ -2366,9 +2404,52 @@ function vbShowState(state) {
 function renderVoteBanner(activeSem) {
   const wrap = document.getElementById('vote-banner-wrap');
   if (!wrap) return;
-  if (!activeSem || isAdm) { wrap.style.display = 'none'; return; }
+  if (!activeSem) {
+    wrap.style.display = 'none';
+    const old = document.getElementById('adm-vote-results');
+    if (old) old.remove();
+    return;
+  }
   wrap.style.display = 'block';
   vbShowState(appData.communityVotes.length ? 'voted' : 'idle');
+  renderAdminVoteResults(activeSem);
+}
+
+// ── ADMIN: 현재 학기 투표 집계 패널 ──
+function renderAdminVoteResults(activeSem) {
+  const old = document.getElementById('adm-vote-results');
+  if (old) old.remove();
+  if (!isAdm || !activeSem) return;
+
+  const rows = appData.projects
+    .map(p => ({ p, n: appData.votes[p.id] || 0 }))
+    .sort((a, b) => b.n - a.n);
+  const total = rows.reduce((sum, r) => sum + r.n, 0);
+
+  const sec = document.createElement('div');
+  sec.id = 'adm-vote-results';
+  sec.className = 'adm-vote-section';
+  sec.style.marginTop = '1.2rem';
+  sec.innerHTML = `
+    <div class="adm-vote-hdr">
+      <div class="adm-vote-title">Vote results · ${escapeHtml(activeSem.name)}</div>
+      <div style="font-size:.8rem;color:var(--m);">${total} vote${total === 1 ? '' : 's'} cast</div>
+    </div>
+    <table class="adm-vote-table">
+      <thead><tr><th style="text-align:left;">Project</th><th style="width:45%;"></th><th style="text-align:right;width:60px;">Votes</th></tr></thead>
+      <tbody>
+        ${rows.length ? rows.map(r => `
+          <tr>
+            <td>${escapeHtml(r.p.title)}</td>
+            <td style="padding-right:14px;">
+              <div class="adm-vote-bar-bg"><div class="adm-vote-bar-fill" style="width:${total ? (r.n / total * 100).toFixed(1) : 0}%"></div></div>
+            </td>
+            <td style="text-align:right;font-weight:600;">${r.n}</td>
+          </tr>`).join('')
+        : '<tr><td colspan="3" style="color:var(--m);font-size:.85rem;padding:14px 0;">No votes yet.</td></tr>'}
+      </tbody>
+    </table>`;
+  document.getElementById('vote-banner-wrap').insertAdjacentElement('afterend', sec);
 }
 
 // ── ADMIN VOTE RESULTS (leaderboard에 삽입) ──
