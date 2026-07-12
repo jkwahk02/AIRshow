@@ -2143,8 +2143,10 @@ function renderGallery() {
     pill.classList.add('inactive');
   }
 
+  // 갤러리는 등록순(최신 먼저) 고정 — 득표수로 정렬하면 순위가 노출되고
+  // 투표할 때마다 카드가 재배치되어 위치 편향이 생김. 득표 정렬은 admin 집계 패널에만.
   const sorted = [...appData.projects].sort((a, b) =>
-    (appData.votes[b.id] || 0) - (appData.votes[a.id] || 0));
+    new Date(b.created_at) - new Date(a.created_at));
 
   document.getElementById('g-count-lbl').textContent = `${sorted.length} projects`;
   document.getElementById('stat-cur').textContent = appData.projects.length;
