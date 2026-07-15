@@ -56,12 +56,36 @@ function gdFallbackBar(id) {
   </div>`;
 }
 
+// 안드로이드 Chrome은 Drive 임베드가 검은 화면(소리만)으로 렌더되는 버그가 있어 iframe 대신 새 탭 재생으로 우회
+function isAndroidVideo() { return /Android/i.test(navigator.userAgent || ''); }
+
+// 안드로이드용 Drive 포스터 — 전체 영역이 실제 링크(탭하면 Drive 페이지에서 정상 재생)
+function gdAndroidPoster(id) {
+  const u = gdViewUrl(id);
+  return `<a href="${u}" target="_blank" rel="noopener"
+    style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-decoration:none;background:#111;overflow:hidden;">
+    <img src="${gdThumbUrl(id)}" referrerpolicy="no-referrer" onerror="this.style.display='none'"
+      style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.4;">
+    <div style="position:relative;width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,.16);border:2px solid rgba(255,255,255,.35);display:flex;align-items:center;justify-content:center;color:#fff;font-size:22px;">▶</div>
+    <div style="position:relative;background:var(--a);color:#fff;padding:9px 20px;border-radius:10px;font-size:.9rem;font-weight:600;">Play on Google Drive ↗</div>
+    <div style="position:relative;color:rgba(255,255,255,.72);font-size:.75rem;">Opens the video in a new tab</div>
+  </a>`;
+}
+
 // 썸네일 컨테이너를 그 자리에서 iframe 플레이어로 교체 (새 탭 열지 않음)
 function playInline(el, url) {
   if (!el || !url) return;
   const ytId = getYouTubeId(url);
   const gdId = getGoogleDriveId(url);
   const odUrl = getOneDriveEmbedUrl(url);
+
+  // 안드로이드 + Google Drive: iframe 대신 탭-투-오픈 포스터
+  if (gdId && isAndroidVideo()) {
+    el.innerHTML = gdAndroidPoster(gdId);
+    el.style.cursor = 'default';
+    return;
+  }
+
   let src = null;
   if (gdId)       src = gdEmbedUrl(gdId);
   else if (ytId)  src = `https://www.youtube.com/embed/${ytId}?autoplay=1&rel=0`;
@@ -94,6 +118,21 @@ function playVideo(url) {
   // 현재 페이지에서 열려있는 video wrap 찾기
   const activeWrap = document.querySelector('.page.active .dvideo-wrap');
   if (!activeWrap) return;
+
+  // 안드로이드 + Google Drive: iframe(검은 화면) 대신 탭-투-오픈 포스터
+  if (gdId && isAndroidVideo()) {
+    const panel = document.createElement('div');
+    panel.style.cssText = 'position:relative;width:100%;aspect-ratio:16/9;background:#111;border-radius:16px;overflow:hidden;';
+    panel.innerHTML = gdAndroidPoster(gdId) +
+      `<button onclick="closeInlineVideo(this)"
+        style="position:absolute;top:10px;right:10px;width:32px;height:32px;border-radius:50%;
+        background:rgba(0,0,0,.6);border:none;color:#fff;font-size:1rem;cursor:pointer;
+        display:flex;align-items:center;justify-content:center;z-index:10;">✕</button>`;
+    activeWrap._originalContent = activeWrap.innerHTML;
+    activeWrap.innerHTML = '';
+    activeWrap.appendChild(panel);
+    return;
+  }
 
   let embedHtml = '';
   if (ytId) {
@@ -170,13 +209,15 @@ function embedVideoPreview(wrapSelector, url) {
     // Google Drive — 프레임 안에서 바로 재생 (+ 우회 링크 상시 노출)
     const player = document.createElement('div');
     player.style.cssText = 'position:relative;width:100%;aspect-ratio:16/9;background:#000;border-radius:16px;overflow:hidden;';
-    player.innerHTML = `<iframe src="${gdEmbedUrl(gdId)}"
+    player.innerHTML = isAndroidVideo()
+      ? gdAndroidPoster(gdId)
+      : `<iframe src="${gdEmbedUrl(gdId)}"
       style="position:absolute;inset:0;width:100%;height:100%;border:none;"
       allow="autoplay; fullscreen" allowfullscreen></iframe>`;
     wrap._originalContent = wrap.innerHTML;
     wrap.innerHTML = '';
     wrap.appendChild(player);
-    wrap.insertAdjacentHTML('beforeend', gdFallbackBar(gdId));
+    if (!isAndroidVideo()) wrap.insertAdjacentHTML('beforeend', gdFallbackBar(gdId));
     return;
   }
 
