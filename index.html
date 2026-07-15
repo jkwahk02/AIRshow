@@ -757,6 +757,26 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);font
   border:1px solid var(--b2);border-radius:10px;font-size:.85rem;font-weight:500;
   color:var(--txt);cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;}
 .vote-banner-change:hover{background:var(--ab);}
+/* ── VOTE BANNER: date + large (bottom) variant ── */
+.vote-banner-date-inline{display:inline-block;margin-top:2px;color:var(--a);font-weight:500;white-space:nowrap;}
+.vote-banner-lg{background:var(--card);border:2px solid var(--a);border-radius:18px;
+  padding:30px 28px;display:flex;flex-direction:column;align-items:center;text-align:center;}
+.vote-banner-lg-voted{border-color:rgba(39,174,96,.4);}
+.vote-banner-lg-icon{width:56px;height:56px;border-radius:50%;
+  background:rgba(230,52,98,.08);border:1.5px solid rgba(230,52,98,.2);
+  display:flex;align-items:center;justify-content:center;font-size:1.6rem;margin-bottom:14px;}
+.vote-banner-lg-icon-voted{background:rgba(39,174,96,.1);border-color:rgba(39,174,96,.25);}
+.vote-banner-lg-title{font-size:clamp(1.15rem,1.8vw,1.35rem);font-weight:600;
+  color:var(--txt);line-height:1.35;max-width:34rem;}
+.vote-banner-lg-body{font-size:.92rem;color:var(--m);line-height:1.65;max-width:36rem;margin-top:12px;}
+.vote-banner-date{display:inline-flex;align-items:center;gap:7px;
+  background:rgba(230,52,98,.1);color:var(--a);border-radius:999px;
+  padding:7px 16px;font-size:.85rem;font-weight:600;margin-top:18px;white-space:nowrap;}
+.vote-banner-lg .vote-banner-btn,.vote-banner-lg .vote-banner-change{margin-top:18px;}
+@media(max-width:540px){
+  .vote-banner-lg{padding:22px 16px;}
+  .vote-banner-lg .vote-banner-btn,.vote-banner-lg .vote-banner-change{width:auto;}
+}
 @media(max-width:540px){
   .vote-banner-idle,.vote-banner-voted{flex-direction:column;align-items:stretch;gap:10px;padding:14px 16px;}
   .vote-banner-btn,.vote-banner-change{width:100%;text-align:center;}
@@ -1367,18 +1387,15 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);font
           </div>
         </div>
       </div>
-      <div id="ggrid" class="ggrid">
-        <div style="grid-column:1/-1;padding:2rem;text-align:center;color:var(--m);font-size:.95rem;">Loading projects…</div>
-      </div>
-      <!-- VOTE BANNER -->
-      <div id="vote-banner-wrap" style="display:none; margin-top:1.5rem;">
+      <!-- VOTE BANNER (small, above gallery) -->
+      <div id="vote-banner-wrap" style="display:none; margin-bottom:1.5rem;">
 
         <div id="vb-idle" class="vote-banner-idle">
           <div class="vote-banner-icon">🏆</div>
           <div style="flex:1; min-width:0;">
             <div class="vote-banner-title">Which project deserves the Outstanding Presentation Award?</div>
-            <div class="vote-banner-sub">Cast your vote for the project that impressed you most.
-              Open to the entire Taejae community — one vote per member.</div>
+            <div class="vote-banner-sub">Your vote decides this one — one vote per Taejae member.
+              <span class="vote-banner-date-inline">📅 Open until July 24, midnight KST</span></div>
           </div>
           <button class="vote-banner-btn" onclick="openVoteModal()">Cast your vote</button>
         </div>
@@ -1387,12 +1404,37 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);font
           <div class="vote-banner-voted-icon">✓</div>
           <div style="flex:1; min-width:0;">
             <div class="vote-banner-voted-title" id="vb-voted-title">Vote recorded</div>
-            <div class="vote-banner-voted-sub">Results revealed at end of semester</div>
+            <div class="vote-banner-voted-sub">Results revealed when the vote is finalized</div>
           </div>
           <button class="vote-banner-change" onclick="openVoteModal()">Change my vote</button>
         </div>
 
       </div><!-- /vote-banner-wrap -->
+
+      <div id="ggrid" class="ggrid">
+        <div style="grid-column:1/-1;padding:2rem;text-align:center;color:var(--m);font-size:.95rem;">Loading projects…</div>
+      </div>
+
+      <!-- VOTE BANNER (large, below gallery) -->
+      <div id="vote-banner-bottom" style="display:none; margin-top:1.75rem;">
+
+        <div id="vb-idle-lg" class="vote-banner-lg">
+          <div class="vote-banner-lg-icon">🏆</div>
+          <div class="vote-banner-lg-title">The Outstanding Presentation Award is decided by you</div>
+          <div class="vote-banner-lg-body">The Outstanding Presentation Award is chosen by the whole Taejae community. Each member may vote for one project, and the project with the most votes takes the award and a place in the Hall of Fame. Results are revealed when the vote is finalized — you can change your vote any time before then.</div>
+          <div class="vote-banner-date">📅 Open until July 24, midnight KST</div>
+          <button class="vote-banner-btn" onclick="openVoteModal()">Cast your vote</button>
+        </div>
+
+        <div id="vb-voted-lg" class="vote-banner-lg vote-banner-lg-voted" style="display:none;">
+          <div class="vote-banner-lg-icon vote-banner-lg-icon-voted">✓</div>
+          <div class="vote-banner-lg-title" id="vb-voted-title-lg">Vote recorded</div>
+          <div class="vote-banner-lg-body">Thanks for taking part. Results are revealed when the vote is finalized — you can change your vote any time before then.</div>
+          <div class="vote-banner-date">📅 Open until July 24, midnight KST</div>
+          <button class="vote-banner-change" onclick="openVoteModal()">Change my vote</button>
+        </div>
+
+      </div><!-- /vote-banner-bottom -->
     </div>
     <!-- LEADERBOARD -->
     <div class="sec" id="sec-leaderboard">
@@ -2357,16 +2399,22 @@ let vmActiveSemId = null;
 let vmSelectedId  = null;
 
 function vbShowState(state) {
-  const idle  = document.getElementById('vb-idle');
-  const voted = document.getElementById('vb-voted');
-  if (!idle || !voted) return;
   const isVoted = state === 'voted';
-  idle.style.display  = isVoted ? 'none' : 'flex';
-  voted.style.display = isVoted ? 'flex' : 'none';
+  const idle   = document.getElementById('vb-idle');
+  const voted  = document.getElementById('vb-voted');
+  if (idle)  idle.style.display  = isVoted ? 'none' : 'flex';
+  if (voted) voted.style.display = isVoted ? 'flex' : 'none';
+  const idleLg  = document.getElementById('vb-idle-lg');
+  const votedLg = document.getElementById('vb-voted-lg');
+  if (idleLg)  idleLg.style.display  = isVoted ? 'none' : 'flex';
+  if (votedLg) votedLg.style.display = isVoted ? 'flex' : 'none';
   if (isVoted) {
     const proj = appData.projects.find(p => p.id === appData.communityVotes[0]);
+    const label = proj ? `Voted — ${proj.title}` : 'Vote recorded';
     const t = document.getElementById('vb-voted-title');
-    if (t) t.textContent = proj ? `Voted — ${proj.title}` : 'Vote recorded';
+    if (t) t.textContent = label;
+    const tLg = document.getElementById('vb-voted-title-lg');
+    if (tLg) tLg.textContent = label;
   }
 }
 
@@ -2531,14 +2579,17 @@ async function vmSubmit() {
 // 아래로 교체:
 function renderVoteBanner(activeSem) {
   const wrap = document.getElementById('vote-banner-wrap');
+  const wrapB = document.getElementById('vote-banner-bottom');
   if (!wrap) return;
   if (!activeSem) {
     wrap.style.display = 'none';
+    if (wrapB) wrapB.style.display = 'none';
     const old = document.getElementById('adm-vote-results');
     if (old) old.remove();
     return;
   }
   wrap.style.display = 'block';
+  if (wrapB) wrapB.style.display = 'block';
   vbShowState(appData.communityVotes.length ? 'voted' : 'idle');
   renderAdminVoteResults(activeSem);
 }
@@ -2577,7 +2628,7 @@ function renderAdminVoteResults(activeSem) {
         : '<tr><td colspan="3" style="color:var(--m);font-size:.85rem;padding:14px 0;">No votes yet.</td></tr>'}
       </tbody>
     </table>`;
-  document.getElementById('vote-banner-wrap').insertAdjacentElement('afterend', sec);
+  (document.getElementById('vote-banner-bottom') || document.getElementById('vote-banner-wrap')).insertAdjacentElement('afterend', sec);
 }
 
 // ── ADMIN VOTE RESULTS (leaderboard에 삽입) ──
